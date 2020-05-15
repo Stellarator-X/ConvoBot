@@ -1,0 +1,142 @@
+<aiml version = "1.0.1" encoding = "UTF-8">
+
+    <!-- <topic name = "suggestions"> -->
+        <category>
+            <pattern>START</pattern>
+            <template>
+                Try:
+                <random>
+                    <li>I want to issue a book</li>
+                    <li>I have a query</li>
+                    <li>I want to renew a book</li>
+                    <li>I want to search for a book in the catalog</li>
+                    <li>When is my book due?</li>
+                    <li>I want to return a book.</li>
+                </random>
+            </template>
+        </category>
+
+        <category>
+            <pattern>QUERIES</pattern>
+            <template>
+                Suggestion: Ask me
+                <random>
+                    <li>how to access the library catalog.</li>
+                    <li>how to renew a book.</li>
+                    <li>how to reserve or hold a book.</li>
+                    <li>how you can suggest a book.</li>
+                </random>\n
+                Suggestion: Ask me
+                <random>
+                    <li>about the item types available in the library.</li>
+                    <li>about whom to contact in case of a problem.</li>
+                    <li>how you can know about your overdue charges and fines.</li>
+                    <li>how you can see your personal details.</li>
+                </random>
+            </template>
+        </category>
+
+        <category>
+            <pattern>ISSUE SUGGESTIONS</pattern>
+            <template>
+                You might like: 
+                <random>
+                    <li>Moby Dick by Herman Melville</li>
+                    <li>The Narrative of Arthur Pym by Edgar Allan Poe</li>
+                    <li>Introduction to Mechanics by David Morin</li>
+                    <li>Electrodynamics by DJ Griffiths</li>
+                    <li>Catch 22 by Joseph Heller</li>
+                        
+                </random>
+            </template>
+        </category>
+
+        <category>
+            <pattern>SEARCH SUGGESTIONS</pattern>
+            <template>
+                You might like: 
+                <random>
+                    <li>Moby Dick by Herman Melville</li>
+                    <li>The Narrative of Arthur Pym by Edgar Allan Poe</li>
+                    <li>Introduction to Mechanics by David Morin</li>
+                    <li>Electrodynamics by DJ Griffiths</li>
+                    <li>Catch 22 by Joseph Heller</li>
+                        
+                </random>
+            </template>
+        </category>
+
+        <category>
+            <pattern>XISSUE</pattern>
+            <template>
+                Try:
+                <random>
+                    <!-- <li>I want to issue a book</li> -->
+                    <li>I have a query</li>
+                    <li>I want to renew a book</li>
+                    <li>I want to search for a book in the catalog</li>
+                    <li>When is my book due?</li>
+                    <li>I want to return a book.</li>
+                </random>
+            </template>
+        </category>
+
+        <category>
+            <pattern>XQUERY</pattern>
+            <template>
+                Try:
+                <random>
+                    <li>I want to issue a book</li>
+                    <!-- <li>I have a query</li> -->
+                    <li>I want to renew a book</li>
+                    <li>I want to search for a book in the catalog</li>
+                    <li>When is my book due?</li>
+                    <li>I want to return a book.</li>
+                </random>
+            </template>
+        </category>
+
+        <category>
+            <pattern>XRENEW</pattern>
+            <template>
+                Try:
+                <random>
+                    <li>I want to issue a book</li>
+                    <li>I have a query</li>
+                    <!-- <li>I want to renew a book</li> -->
+                    <li>I want to search for a book in the catalog</li>
+                    <li>I want to return a book.</li>
+                </random>
+            </template>
+        </category>
+
+        <category>
+            <pattern>XRETURN</pattern>
+            <template>
+                Try:
+                <random>
+                    <li>I want to issue a book</li>
+                    <li>I have a query</li>
+                    <!-- <li>I want to renew a book</li> -->
+                    <li>I want to search for a book in the catalog</li>
+                </random>
+            </template>
+        </category>
+
+        <category>
+            <pattern>XSEARCH</pattern>
+            <template>
+                Try:
+                <random>
+                    <li>I want to issue a book</li>
+                    <li>I have a query</li>
+                    <li>I want to renew a book</li>
+                    <li>When is my book due?</li>
+                    <li>I want to return a book.</li>
+                    <!-- <li>I want to search for a book in the catalog</li> -->
+                </random>
+            </template>
+        </category>
+
+    <!-- </topic> -->
+</aiml>

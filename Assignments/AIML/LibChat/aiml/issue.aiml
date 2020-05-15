@@ -1,0 +1,248 @@
+<!-- Issuing a book -->
+
+<aiml version = "1.0.1" encoding = "UTF-8">
+
+    <category>
+        <pattern>
+            ISSUE BOOK
+        </pattern>
+        <template>
+            <think><set name  = "topic">ISSUE</set></think>
+            Sure! Which book are you interested in?
+        </template>
+    </category>
+
+    <category>
+        <pattern>ISSUE *</pattern>
+        <template>
+            <srai>ISSUE BOOK</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>BORROW BOOK</pattern>
+        <template>
+            <srai>ISSUE BOOK</srai>
+        </template>
+    </category>
+
+    <topic name = "ISSUE">
+
+        <category>
+            <pattern>*</pattern>
+            <template>That's what you say to <that/>?</template>
+        </category>
+
+        <category>
+            <pattern>getlink *</pattern>
+            <template>getlink <star/>
+            <think>
+                <set name = "BookIssued"><star/></set>
+                <set name = "IssueDate"><date/></set>
+            </think>
+            </template>
+        </category>
+
+        <category>
+            <pattern>book *</pattern>
+            <that>SURE WHICH BOOK ARE YOU INTERESTED IN</that>
+            <template><srai>getlink <star/></srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>*</pattern>
+            <that>SURE WHICH BOOK ARE YOU INTERESTED IN</that>
+            <template><srai>getlink <star/></srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>SAMPLE</pattern>
+            <template> sd </template>
+        </category>
+
+        <category>
+            <pattern>Thanks</pattern>
+            <template>
+            Glad to be of help. What else can I do for you?\n
+            <think><set name = "topic">suggestions</set></think>
+            <srai>XISSUE</srai>
+            <think><set name="topic"/> done</think>
+            </template>
+        </category>
+       
+       <category>
+            <pattern>Thanks *</pattern>
+            <template>
+                <srai>Thanks</srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>*</pattern>
+            <that>GETLINK *</that>
+            <template>
+                Sorry, I could not get that. Was it your way of saying thanks?
+            </template>
+        </category>
+
+        <category>
+            <pattern>YES</pattern>
+            <that>* WAY OF SAYING THANKS</that>
+            <template>
+                <srai>THANKS</srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>NO</pattern>
+            <that>* WAY OF SAYING THANKS</that>
+            <template>
+                I perceive.
+                <think><set name = "topic">suggestions</set></think>
+                <srai>Issue Suggestions</srai>
+                <think><set name = "topic">issue</set></think>
+            </template>
+        </category>
+
+        <category>
+            <pattern>YEAH</pattern>
+            <template>
+                <srai>YES</srai>
+            </template>
+        </category>
+
+    </topic>
+
+    <category>
+        <pattern>SEARCH BOOK CATALOG</pattern>
+        <template>
+            <think>
+                <set name = "topic">CATSEARCH</set>
+            </think>
+            What do you want to search for?
+        </template>
+    </category>
+
+    <category>
+        <pattern>SEARCH BOOK * CATALOG</pattern>
+        <template>
+            <srai>SEARCH BOOK CATALOG</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>SEARCH BOOK * CATALOG *</pattern>
+        <template>
+            <srai>SEARCH BOOK CATALOG</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>SEARCH CATALOG</pattern>
+        <template>
+            <srai>SEARCH BOOK CATALOG</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>SEARCH CATALOG *</pattern>
+        <template>
+            <srai>SEARCH BOOK CATALOG</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>SEARCH * CATALOG</pattern>
+        <template>
+            <srai>SEARCH BOOK CATALOG</srai>
+        </template>
+    </category>
+
+    <topic name = "CATSEARCH">
+
+        <category>
+            <pattern>catlink *</pattern>
+            <template>getcatlink <star/></template>
+        </category>
+
+
+        <category>
+            <pattern>*</pattern>
+            <that>WHAT DO YOU WANT TO SEARCH FOR</that>
+            <template>
+                <srai>catlink <star/></srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>*</pattern>
+            <template>
+                Didn't get that.\n What do you want to search for in the catalog?
+            </template>
+        </category>
+
+        <category>
+            <pattern>*</pattern>
+            <that>* WHAT DO YOU WANT TO SEARCH FOR IN THE CATALOG</that>
+            <template>
+                <srai>catlink <star/></srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>Thanks</pattern>
+            <template>
+            Glad to be of help. What else can I do for you?\n
+            <think><set name = "topic">suggestions</set></think>
+            <srai>XSEARCH</srai>
+            <think><set name="topic"/> done</think>
+            </template>
+        </category>
+       
+       <category>
+            <pattern>Thanks *</pattern>
+            <template>
+                <srai>Thanks</srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>*</pattern>
+            <that>GETCATLINK *</that>
+            <template>
+                Sorry, I could not get that. Was it your way of saying thanks?
+            </template>
+        </category>
+
+        <category>
+            <pattern>YES</pattern>
+            <that>* WAY OF SAYING THANKS</that>
+            <template>
+                <srai>THANKS</srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>NO</pattern>
+            <that>* WAY OF SAYING THANKS</that>
+            <template>
+                I perceive.
+                <think><set name = "topic">suggestions</set></think>
+                <srai>Search Suggestions</srai>
+                <think><set name = "topic">issue</set></think>
+            </template>
+        </category>
+
+        <category>
+            <pattern>YEAH</pattern>
+            <template>
+                <srai>YES</srai>
+            </template>
+        </category>
+
+    </topic>
+
+
+</aiml>

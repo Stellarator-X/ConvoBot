@@ -1,0 +1,240 @@
+<aiml version = "1.0.1" encoding = "UTF-8">
+
+    <category>
+        <pattern>
+            RENEW BOOK
+        </pattern>
+        <template>
+        <think>
+            <set name = "topic">RENEW</set>
+        </think>
+            <srai>getIssueDetails</srai>
+        </template>
+    </category>
+
+    <topic name = "RENEW">
+        <category>
+            <pattern>getIssueDetails</pattern>
+            <template>
+                <condition name = "BookIssued">
+                    <li value = "None"> 
+                        You currently do not have any book issued.\n 
+                        Try : I want to issue a book.
+                    </li>
+                    <li>
+                        <formal><get name = "BookIssued"/></formal> is due on <get name = "DueDate"/>.\n
+                        Do you want me to renew this for you?
+                    </li>
+                </condition>
+            </template>
+        </category>
+
+        <category>
+            <pattern>
+                RENEW
+            </pattern>
+            <template>
+                Your book has been renewed.
+            </template>
+        </category>
+
+
+        <category>
+            <pattern>
+                Thanks
+            </pattern>
+            <template>
+                <think>
+                </think>
+                No problem. Anything else I can do?\n
+                <think><set name = "topic">suggestions</set></think>
+                <srai>XRENEW</srai>
+                <think><set name="topic"> done</set></think>
+            </template>
+        </category>
+
+        <category>
+            <pattern>
+                ABSOLUTELY
+            </pattern>
+            <that>* DO YOU WANT ME TO RENEW THIS FOR YOU</that>
+            <template>
+                <srai>RENEW</srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>
+                * YEAH
+            </pattern>
+            <that>* DO YOU WANT ME TO RENEW THIS FOR YOU</that>
+            <template>
+                <srai>RENEW</srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>YES</pattern>
+            <template>
+                <srai>RENEW</srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>*</pattern>
+            <that>* DO YOU WANT ME TO RENEW THIS FOR YOU</that>
+            <template> Was that a yes?</template>
+        </category>
+
+        <category>
+            <pattern>NO</pattern>
+            <that>* DO YOU WANT ME TO RENEW THIS FOR YOU</that>
+            <template>
+                Okay. Anything else I can do?\n
+                <think><set name = "topic">suggestions</set></think>
+                <srai>START</srai>
+                <think><set name="topic">XRENEW</set></think>
+            </template>
+        </category>
+
+        <category>
+            <pattern>NO</pattern>
+            <that>WAS THAT A YES</that>
+            <template>
+                Okay. Anything else I can do?\n
+                <think><set name = "topic">suggestions</set></think>
+                <srai>START</srai>
+                <think><set name="topic"> done</set></think>
+            </template>
+        </category>
+
+        <category>
+            <pattern>NOPE</pattern>
+            <template>
+                <srai>NO</srai>
+            </template>
+        </category>
+
+   </topic>
+
+    <category>
+        <pattern>RETURN BOOK</pattern>
+        <template>
+        <think>
+            <set name = "topic">RETURN</set>
+        </think>
+            <srai>getIssueDetails</srai>
+        </template>
+    </category>
+
+    <topic name = "RETURN">
+        <category>
+            <pattern>getIssueDetails</pattern>
+            <template>
+                <condition name = "BookIssued">
+                    <li value = "None"> 
+                        You currently do not have any book issued.\n 
+                        Try : I want to issue a book.
+                    </li>
+                    <li>
+                        <formal><get name = "BookIssued"/></formal> is due on <get name = "DueDate"/>.\n
+                        Do you want me to return this for you?
+                    </li>
+                </condition>
+            </template>
+        </category>
+
+        <category>
+            <pattern>
+                RETURN
+            </pattern>
+            <template>
+                Your book has been returned.
+                <think>
+                <set name = "BookIssued">None</set>
+                <set name = "IssueDate">None</set>
+                <set name = "DueDate">None</set>
+            </think>
+            </template>
+        </category>
+
+
+        <category>
+            <pattern>
+                Thanks
+            </pattern>
+            <template>
+                <think>
+                </think>
+                No problem. Anything else I can do?\n
+                <think><set name = "topic">suggestions</set></think>
+                <srai>XRETURN</srai>
+                <think><set name="topic"> done</set></think>
+            </template>
+        </category>
+
+        <category>
+            <pattern>
+                ABSOLUTELY
+            </pattern>
+            <that>* DO YOU WANT ME TO RETURN THIS FOR YOU</that>
+            <template>
+                <srai>RETURN</srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>
+                * YEAH
+            </pattern>
+            <that>* DO YOU WANT ME TO RETURN THIS FOR YOU</that>
+            <template>
+                <srai>RETURN</srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>YES</pattern>
+            <template>
+                <srai>RETURN</srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>*</pattern>
+            <that>* DO YOU WANT ME TO RETURN THIS FOR YOU</that>
+            <template> Was that a yes?</template>
+        </category>
+
+        <category>
+            <pattern>NO</pattern>
+            <that>* DO YOU WANT ME TO RETURN THIS FOR YOU</that>
+            <template>
+                Okay. Anything else I can do?\n
+                <think><set name = "topic">suggestions</set></think>
+                <srai>START</srai>
+                <think><set name="topic">XRETURN</set></think>
+            </template>
+        </category>
+
+        <category>
+            <pattern>NO</pattern>
+            <that>WAS THAT A YES</that>
+            <template>
+                Okay. Anything else I can do?\n
+                <think><set name = "topic">suggestions</set></think>
+                <srai>START</srai>
+                <think><set name="topic"> done</set></think>
+            </template>
+        </category>
+
+        <category>
+            <pattern>NOPE</pattern>
+            <template>
+                <srai>NO</srai>
+            </template>
+        </category>
+
+    </topic>
+
+</aiml>

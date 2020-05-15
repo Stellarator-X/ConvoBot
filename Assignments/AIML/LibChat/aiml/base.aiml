@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<aiml version="1.0.1">
+
+    <category>
+
+        <pattern>HI</pattern>
+        <template>
+            <random>
+            <li>Hello!</li>
+            </random>
+            <think><set name = "topic">suggestions</set></think>
+            <srai>START</srai>
+            <think><set name="topic"/> done</think>
+        </template>
+    </category>
+
+    <category>
+        <pattern>HELLO</pattern>
+        <template>
+        <srai>HI</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>* LIBCHAT</pattern>
+        <template>
+            <srai>LIBCHAT</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>hey LIBCHAT *</pattern>
+        <template>
+            <srai>LIBCHAT <star/></srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>LIBCHAT</pattern>
+        <template> I am LibChat, who Else?\n I can help you.\n 
+            <think><set name = "topic">suggestions</set></think>
+            <srai>START</srai>
+            <think><set name="topic"/> done</think>
+        </template>
+    </category>
+
+    <category>
+        <pattern>LIBCHAT *</pattern>
+        <template>
+            <srai><star/></srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>name</pattern>
+        <template>
+            You are <formal><get name = "Name"/></formal>, ofcourse.
+        </template>
+    </category>
+
+    <category>
+        <pattern>BOOK DUE</pattern>
+        <template>
+            <srai>RENEW BOOK</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>HEY *</pattern>
+        <template><srai>HI</srai></template>
+    </category>
+
+</aiml>

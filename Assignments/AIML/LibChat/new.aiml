@@ -1,0 +1,7 @@
+<aiml>
+	<category>
+		<pattern> HELLO BRO *</pattern>
+		<template>Hello to you too</template>
+	</category>
+</aiml>	
+			

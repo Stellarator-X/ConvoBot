@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<aiml version="1.0.1">
+
+    <category>
+        <pattern>BLOW</pattern>
+        <template>
+            Try :  
+            <random>
+                <li>I want to issue a book</li>
+                <li>I want to return a book</li>
+                <li>I have a query</li>
+            </random>
+        </template>
+    </category>
+
+    <category>
+        <pattern>LOAD</pattern>
+        <template>
+            <learn>aiml/base.aiml</learn>
+            <learn>aiml/queries.aiml</learn>
+            <learn>aiml/issue.aiml</learn>
+            <learn>aiml/std-startup.aiml</learn>
+            <learn>aiml/suggestions.aiml</learn>
+            <learn>aiml/renew.aiml</learn>
+            loaded.
+        </template>
+       
+    </category>
+
+    <category>
+        <pattern>
+            BOOT
+        </pattern>
+        <template>
+            <!-- Tomorrow will be <date/>\n -->
+            Hello, <formal><get name = "Name"/></formal>!\n
+            <condition name = "newUser" value = "False">
+                <condition name = "BookIssued">
+                <li value = "None"></li>
+                <li>I hope you are liking <get name = "BookIssued"/>\n</li>
+                </condition>
+            </condition>
+            What can I help you with today?\n
+            <think><set name = "topic">suggestions</set></think>
+            <srai>START</srai>
+            <think><set name="topic"/> done</think>
+        </template>
+    </category>
+
+    <category>
+        <pattern>*</pattern>
+        <template>I am afraid that's beyond my comprehension.\n
+            I guess I should look up the keywords <star/> under <get name = "topic"/>, but I'm  too lazy.\n
+            <think><set name = "topic">suggestions</set></think>
+            <srai>START</srai>
+            <think><set name="topic"/> done</think>
+        </template>
+    </category>
+
+</aiml>

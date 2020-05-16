@@ -5,8 +5,6 @@ A key-word based chatbot for PK Kelkar Library, with issuing outsourced to Libra
 ### Running the bot
 Run <a href = "app.py">app.py</a> and open the server link in your browser.
 
-    $ python3 app.py
-
 ### Functions :
 1. Issuing/Renewing a book
 2. Searching for a book in the library catalog

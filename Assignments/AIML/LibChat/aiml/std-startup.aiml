@@ -50,7 +50,7 @@
     <category>
         <pattern>*</pattern>
         <template>I am afraid that's beyond my comprehension.\n
-            I guess I should look up the keywords <star/> under <get name = "topic"/>, but I'm  too lazy.\n
+            I guess I should look up the keywords <star/>, but I'm too lazy.\n
             <think><set name = "topic">suggestions</set></think>
             <srai>START</srai>
             <think><set name="topic"/> done</think>

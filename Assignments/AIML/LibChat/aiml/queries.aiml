@@ -34,7 +34,6 @@
                 <li>You know, I don't know much about that. I should probably look up on the keywords <star/></li>
                 <li>That I can't fathom. I'll look up on the keywords <star/></li>
                 </random>\n
-                I said <that index="2"/> Two texts ago.
                 <think><set name = "topic">suggestions</set></think>
             <srai>QUERIES</srai>
             <think><set name="topic">FAQ</set></think>

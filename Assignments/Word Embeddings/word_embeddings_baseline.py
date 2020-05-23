@@ -10,7 +10,6 @@ Original file is located at
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Embedding, Dropout, Bidirectional, LSTM, BatchNormalization
-# from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import tensorflow_datasets as tfds

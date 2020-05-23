@@ -1,7 +1,5 @@
-#### TODO : VOCAB SIZE HANDLING
-
-
 from scipy import sparse
+import re
 import sys
 import numpy as np
 from tensorflow.keras.preprocessing.text import Tokenizer
@@ -32,7 +30,7 @@ class Glove():
             print(f"\rForming the Co-Occurence Matrix : {(100*(i+1 )/len(corpus)):0.2f}%", end = "")
             sys.stdout.flush()
 
-            tokens = line.strip().split()
+            tokens = re.split(r"\W+", line.strip())
             token_ids = [word_index[word.lower()] for word in tokens]
 
             # extracting context words to the left
@@ -104,7 +102,7 @@ class Glove():
                 dbi += f(Xij)*( Wi.T @ Wj + bi + bj - np.log(1+Xij))
         dW[i] = dWi
 
-        # Updating paramters
+        # Updating parameters
 
         mW = beta1*mW_prev + (1-beta1)*dW
         vW = beta2*vW_prev + (1-beta2)*(np.square(dW))
@@ -187,8 +185,6 @@ class Glove():
         tokenizer.fit_on_texts(corpus)
         word_index = {e:i for e,i in tokenizer.word_index.items() if i <= self.vocab_size}
 
-        # print(word_index)
-        
         self.cooccurences = self.build_co_occurence(word_index = word_index, corpus = corpus, window_size = 10)
         history = self.train(word_index, self.cooccurences, embedding_dim=embedding_dim, iterations = iterations)
 

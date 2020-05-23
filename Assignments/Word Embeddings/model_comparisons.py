@@ -18,7 +18,6 @@ for word, row in zip(read_word, read_vec):
     vec = np.array([float(r) for r in row])
     word_to_vec[str(word[0])] = vec
 
-print(word_to_vec['girl'])
 
 def cosine_similarity(u, v):
     dot = u.dot(v)
@@ -73,13 +72,13 @@ def outlier_detection(words):
     return words[index]
 
 
+if __name__ == "__main__":
+    woman = word_to_vec['woman']
+    girl = word_to_vec['girl']
+    fat = word_to_vec['fat']
+    food = word_to_vec['food']
+            
+    print(cosine_similarity(woman, girl))
+    print(cosine_similarity(fat, food))
 
-woman = word_to_vec['woman']
-girl = word_to_vec['girl']
-fat = word_to_vec['fat']
-food = word_to_vec['food']
-        
-print(cosine_similarity(woman, girl))
-print(cosine_similarity(fat, food))
-
-print(complete_analogy('comedy', 'fun', 'action', word_to_vec))
+    print(complete_analogy('comedy', 'fun', 'action', word_to_vec))

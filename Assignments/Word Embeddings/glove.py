@@ -16,9 +16,16 @@ class Glove():
         print("Model initialised v3.5")
 
     def build_co_occurence(self, word_index, corpus, window_size):
+
+        # Cleaning the corpus
+        tk = Tokenizer()
+        tk.fit_on_texts(corpus)
+        corpus = tk.texts_to_sequences(corpus)
+        corpus = tk.sequences_to_texts(corpus)
+
         vocab_size = len(word_index) + 1
 
-        idx_to_word = {word_index[word]:word for word in word_index}
+        idx_to_word = {word_index[word]:word for word in word_index if word in word_index else 1:word}
 
         # Collecting indices as a sparse matrix
         self.cooccurences = sparse.lil_matrix((vocab_size, vocab_size), dtype = np.float64)
@@ -30,8 +37,8 @@ class Glove():
             print(f"\rForming the Co-Occurence Matrix : {(100*(i+1 )/len(corpus)):0.2f}%", end = "")
             sys.stdout.flush()
 
-            tokens = re.split(r"\W+", line.strip())
-            token_ids = [word_index[word.lower()] for word in tokens]
+            tokens = line.strip().split()
+            token_ids = [word_index[word.lower()] for word in tokens if word.lower() in word_index]
 
             # extracting context words to the left
 
@@ -183,7 +190,7 @@ class Glove():
         # builing the cooc
         tokenizer = Tokenizer(num_words = self.vocab_size, lower = True, oov_token = '<OOV>')
         tokenizer.fit_on_texts(corpus)
-        word_index = {e:i for e,i in tokenizer.word_index.items() if i <= self.vocab_size}
+        word_index = {e.lower():i for e,i in tokenizer.word_index.items() if i <= self.vocab_size}
 
         self.cooccurences = self.build_co_occurence(word_index = word_index, corpus = corpus, window_size = 10)
         history = self.train(word_index, self.cooccurences, embedding_dim=embedding_dim, iterations = iterations)

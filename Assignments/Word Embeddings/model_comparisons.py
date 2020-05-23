@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential
 import csv
 
-model = 'regularized'
+model = 'word2vec'
 
 # Loading the embeddings
 vec_file = open(f"embeddings/{model}/vecs.tsv")

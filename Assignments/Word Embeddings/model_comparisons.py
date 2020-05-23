@@ -53,13 +53,13 @@ def concept_categorization(words):
 
 def compactness_score(word, words):
     n = len(words)
-    W = [w in words if w != word]
+    W = [w for w in words if w!=word]
     
     score = 0
 
     for w1 in W:
-        for w2 in [word in W if word!=w1]:
-            score += cosine_similarity(word_to_vec[word1], word_to_vec[word2])
+        for w2 in [word for word in W if word!=w1]:
+            score += cosine_similarity(word_to_vec[w1], word_to_vec[w2])
 
     score /= n*(n-1)
 
@@ -73,12 +73,8 @@ def outlier_detection(words):
 
 
 if __name__ == "__main__":
-    woman = word_to_vec['woman']
-    girl = word_to_vec['girl']
-    fat = word_to_vec['fat']
-    food = word_to_vec['food']
-            
-    print(cosine_similarity(woman, girl))
-    print(cosine_similarity(fat, food))
 
-    print(complete_analogy('comedy', 'fun', 'action', word_to_vec))
+    print(complete_analogy('boy', 'man', 'girl', word_to_vec))
+
+    print(outlier_detection(['air', 'steam', 'water']))
+

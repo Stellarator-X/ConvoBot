@@ -25,7 +25,7 @@ class Glove():
 
         vocab_size = len(word_index) + 1
 
-        idx_to_word = {word_index[word]:word for word in word_index if word in word_index else 1:word}
+        idx_to_word = {word_index[word]:word for word in word_index if word in word_index}
 
         # Collecting indices as a sparse matrix
         self.cooccurences = sparse.lil_matrix((vocab_size, vocab_size), dtype = np.float64)
@@ -99,7 +99,6 @@ class Glove():
             dWi = np.zeros(dW[0].shape)
             dbi = np.zeros(db[0].shape)    
             Wi = W[i, :]
-            bi = b[i]
             for j in range(self.vocab_size): # TODO figure out the -2
                 Xij = X[i, j]
                 Wj = W[self.vocab_size + j - 1, :]

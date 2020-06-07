@@ -47,6 +47,14 @@ def pitch(data, sampling_rate, pitch_factor):
 def speed(data, speed_factor):
     return librosa.effects.time_stretch(data, speed_factor)
 
+def to_spectrogram(audio_file):
+    # Loads the audio file and returns the spectrogram
+    x, sr = librosa.load(audio_file, sr = 44100)
+    X = librosa.stft(x)
+    spectrogram = librosa.amplitude_to_db(abs(X))
+    return spectrogram
+
+
 """
 SpecAugment Methods
 """

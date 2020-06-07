@@ -3,6 +3,8 @@ import numpy as np
 import tensorflow as tf 
 import augmentation as aug
 
+_Data_Dir_  = "LibriSpeech/"
+
 def find_files(root_search_path, files_extension):
     files_list = []
     for root, _, files in os.walk(root_search_path):
@@ -77,7 +79,8 @@ class SR_DataGenerator(tf.keras.utils.Sequence):
         y = np.empty((self.batch_size), dtype = str)
 
         for i, ex in enumerate(spects_temp):
-            X[i,] = None # Load from <path_to_id>
+            path_to_id = find_files(_Data_Dir_, ex + ".flac")[0]  #Getting the audio file for the id
+            X[i,] = aug.to_spectrogram(path_to_id)
             y[i] = self.labels[ID]
 
         # Augment X
@@ -95,5 +98,3 @@ class SR_DataGenerator(tf.keras.utils.Sequence):
         X, y = self.__data_generation(spects_temp)
 
         return X, y
-    
-

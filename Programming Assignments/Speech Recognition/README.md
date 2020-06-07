@@ -7,7 +7,7 @@ A tensorflow implementation of the Deep Speech 2 Model proposed by Baidu Researc
 **Contents**:</br>
 
 * [Augmentation](ds_utils/augmentation.py)
-* [Data Generation](https://github.com/Stellarator-X/ConvoBot/blob/cd4e794ecce99f8c90c1b02efd5883fb7768857e/Programming%20Assignments/Speech%20Recognition/ds_utils/data_manip.py#L50)
+* [Data Generation](https://github.com/Stellarator-X/ConvoBot/blob/5e8af5538b3b9eb863606d9a0180b11efe284e8c/Programming%20Assignments/Speech%20Recognition/ds_utils/data_manip.py#L52)
 
 ## References
 

@@ -25,9 +25,3 @@ This is a tensorflow implementation of the Deep Speech 2 Model proposed by Baidu
   * **Published** : 3 Dec, 2019
 
 ****
-
-### Todo
-
-* [Peephole LSTMs](https://www.tensorflow.org/api_docs/python/tf/keras/experimental/PeepholeLSTMCell)
-* [LAS](https://arxiv.org/pdf/1508.01211.pdf)
-* [More on SpecAug](https://arxiv.org/pdf/1901.00295.pdf)

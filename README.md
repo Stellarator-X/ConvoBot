@@ -1,5 +1,5 @@
 # ConvoBot
-Repository for the Conversatiional Robot
+Repository for Conversational_bot
 
 ## Contents
 

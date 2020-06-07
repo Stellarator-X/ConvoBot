@@ -1,8 +1,10 @@
 import librosa 
 import librosa.display 
+import tensorflow as tf
+from tensorflow_addons.image import sparse_image_warp
+import numpy as np 
 
-# TODO : @stellarator-x
-#    cleanliness drive 
+# TODO mire-purging : @stellarator-x
 
 def noise(data, noise_factor):
     noise = np.random.randn(len(data))
@@ -44,3 +46,99 @@ def pitch(data, sampling_rate, pitch_factor):
 
 def speed(data, speed_factor):
     return librosa.effects.time_stretch(data, speed_factor)
+
+"""
+SpecAugment Methods
+"""
+
+def time_warp(spectrogram, W=80):
+    # Returns the time-warped tensor given the spectrogram
+    
+    tau, f = spectrogram.shape
+
+    # Source control point locations
+    point = tf.random.uniform(shape = [], minval = W, maxval = tau - W)
+    freq_at_point = tf.range(f//2) # The column of the spectorgram at point
+    time_at_point = tf.ones_like(freq_at_point, dtype=float32)*point # control points on the time axis 
+    scpt = tf.cast(tf.stack((freq_at_point, time_at_point), axis = -1), dtype = tf.float32)
+    scpt = tf.expand_dims(scpt, axis = 0)
+
+    # Destination control point locations
+    dt = tf.random.uniform(shape = [], minval = -W, maxval = W)
+    dest_freq_at_point = freq_at_point
+    dest_time_at_point = time_at_point + dt
+    dcpt =  tf.cast(tf.stack((dest_freq_at_point, dest_time_at_point), axis = -1), dtype = tf.float32)
+    dcpt = tf.expand_dims(dcpt, axis = 0)
+    
+    
+    warped_dat, _ = sparse_image_warp(spectrogram, 
+                                   source_control_point_locations = scpt, 
+                                   dest_control_point_location = dcspt,
+                                   num_boundary_points=2) # Need to see if there is any way to have 1.5-equivalent
+
+    return warped_dat
+
+
+
+def frequency_mask(spectrogram, F=27):
+    # Adding a frequency mask
+    f = tf.random.uniform([], minval = 0, maxval = F)
+    v, T = spectrogram.shape
+    f0 = tf.random.uniform([], minval = 0, maxval = v-f)
+    res1 = spectrogram[:f0,:]
+    res2 = spectrogram[f0+f, :]
+    mask = tf.zeros_like(spectrogram[f0:f0+f,:])
+    mased_spec = tf.concat([res1, mask, res2], axis = 0)
+    return tf.cast(mased_spec, dtype = tf.float64)
+
+
+def time_mask(spectrogram, T=100):
+    # Adding a time mask
+
+    t = tf.random.uniform([], minval = 0, maxval = T)
+    _, tau = spectrogram.shape
+    t0 = tf.random.uniform([], minval = 0, maxval = tau-t)
+    res1 = spectrogram[:,:t0]
+    res2 = sprectrogram[:, t0:t0+t]
+    mask = tf.zeros_like(spectrogram[:, t0:t0+t])
+    mased_spec = tf.concat([res1, mask, res2], axis = 1)
+    return tf.cast(mased_spec, dtype = tf.float64)
+
+def specAugment(data, W=80, F=27, T=100, mF=1, mT=1, add_random = False):
+    """
+    Apply specAugmentation to the batch of data
+
+    params:
+        data : batch of spectrograms to be augmented
+        W : Time warp parameter 
+        F : Frequency mask parameter
+        T : Time mask parameter
+        mF : no. of frequency masks to be applied
+        mT : no. of time masks to be applied
+        add_random : bool, determines whether random augmentations are added
+
+    returns:
+        augmented batch, with 2x (3x with add_random True) the number of samples in the input batch
+
+    """
+    aug_data = []
+    for spect in data:
+        aug_data.append(spect)
+
+        if add_random:
+            augmentations = [lambda x : time_warp(x, W), 
+                            lambda x :frequency_mask(x, F), 
+                            lambda x:time_mask(x, T) ]
+            
+            num_aug = np.random.choice([1, 2, 3])
+            for i in range(num_aug):
+                aug_data.append(augmentations[i](spect))
+        
+        struct_aug = time_warp(spect, W)
+        for i in range(mF) : struct_aug = frequency_mask(spect, F)
+        for i in range(mT) : struct_aug = time_mask(spect, T)
+
+        aug_data.append(struct_aug)
+    
+    aug_data = np.array(aug_data)
+    return tf.convert_to_tensor(aug_data)

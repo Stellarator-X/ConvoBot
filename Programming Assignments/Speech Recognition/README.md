@@ -1,8 +1,6 @@
 # Speech Recognition : Deep Speech 2
 
-## Introduction
-
-This is a tensorflow implementation of the Deep Speech 2 Model proposed by Baidu Research and Silicon Valley AI Lab.
+A tensorflow implementation of the Deep Speech 2 Model proposed by Baidu Research and Silicon Valley AI Lab.
 
 ### Phase 1 : Data Generation and Augmentation
 

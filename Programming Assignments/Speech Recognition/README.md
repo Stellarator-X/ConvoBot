@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is a tensorflow implementation of the Deep Speech 2 Model proposed by Baidu and Someone.
+This is a tensorflow implementation of the Deep Speech 2 Model proposed by Baidu Research and Silicon Valley AI Lab.
 
 ### Data Generation and Augmentation
 
@@ -12,7 +12,7 @@ This is a tensorflow implementation of the Deep Speech 2 Model proposed by Baidu
 
 ## References
 
-* _Deep Speech 2: End-to-End Speech_ Recognition in English and Mandarin
+* _Deep Speech 2: End-to-End Speech Recognition in English and Mandarin_
   * **Link** : [https://arxiv.org/abs/1512.02595]
   * **Author(s)/Organization** : Baidu Research – Silicon Valley AI Lab
   * **Tags** : Speech Recognition
@@ -29,3 +29,4 @@ This is a tensorflow implementation of the Deep Speech 2 Model proposed by Baidu
 
 * [Peephole LSTMs](https://www.tensorflow.org/api_docs/python/tf/keras/experimental/PeepholeLSTMCell)
 * [LAS](https://arxiv.org/pdf/1508.01211.pdf)
+* [More on SpecAug](https://arxiv.org/pdf/1901.00295.pdf)

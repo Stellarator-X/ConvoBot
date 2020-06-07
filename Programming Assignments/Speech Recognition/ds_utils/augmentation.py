@@ -57,14 +57,14 @@ def time_warp(spectrogram, W=80):
     tau, f = spectrogram.shape
 
     # Source control point locations
-    point = tf.random.uniform(shape = [], minval = W, maxval = tau - W)
+    point = tf.random.uniform(shape = [], minval = W, maxval = tau - W, dtype = tf.int32)
     freq_at_point = tf.range(f//2) # The column of the spectorgram at point
     time_at_point = tf.ones_like(freq_at_point, dtype=float32)*point # control points on the time axis 
     scpt = tf.cast(tf.stack((freq_at_point, time_at_point), axis = -1), dtype = tf.float32)
     scpt = tf.expand_dims(scpt, axis = 0)
 
     # Destination control point locations
-    dt = tf.random.uniform(shape = [], minval = -W, maxval = W)
+    dt = tf.random.uniform(shape = [], minval = -W, maxval = W, dtype = tf.int32)
     dest_freq_at_point = freq_at_point
     dest_time_at_point = time_at_point + dt
     dcpt =  tf.cast(tf.stack((dest_freq_at_point, dest_time_at_point), axis = -1), dtype = tf.float32)
@@ -82,9 +82,9 @@ def time_warp(spectrogram, W=80):
 
 def frequency_mask(spectrogram, F=27):
     # Adding a frequency mask
-    f = tf.random.uniform([], minval = 0, maxval = F)
+    f = tf.random.uniform([], minval = 0, maxval = F, dtype = tf.int32)
     v, T = spectrogram.shape
-    f0 = tf.random.uniform([], minval = 0, maxval = v-f)
+    f0 = tf.random.uniform([], minval = 0, maxval = v-f, dtype = tf.int32)
     res1 = spectrogram[:f0,:]
     res2 = spectrogram[f0+f, :]
     mask = tf.zeros_like(spectrogram[f0:f0+f,:])
@@ -95,16 +95,16 @@ def frequency_mask(spectrogram, F=27):
 def time_mask(spectrogram, T=100):
     # Adding a time mask
 
-    t = tf.random.uniform([], minval = 0, maxval = T)
+    t = tf.random.uniform([], minval = 0, maxval = T, dtype = tf.int32)
     _, tau = spectrogram.shape
-    t0 = tf.random.uniform([], minval = 0, maxval = tau-t)
+    t0 = tf.random.uniform([], minval = 0, maxval = tau-t, dtype = tf.int32)
     res1 = spectrogram[:,:t0]
     res2 = sprectrogram[:, t0:t0+t]
     mask = tf.zeros_like(spectrogram[:, t0:t0+t])
     mased_spec = tf.concat([res1, mask, res2], axis = 1)
     return tf.cast(mased_spec, dtype = tf.float64)
 
-def specAugment(data, W=80, F=27, T=100, mF=1, mT=1, add_random = False):
+def specAugment(data,labels, W=80, F=27, T=100, mF=1, mT=1, add_random = False):
     """
     Apply specAugmentation to the batch of data
 
@@ -122,8 +122,10 @@ def specAugment(data, W=80, F=27, T=100, mF=1, mT=1, add_random = False):
 
     """
     aug_data = []
-    for spect in data:
+    Y = []
+    for spect, y in zip(data, labels):
         aug_data.append(spect)
+        Y.append(y)
 
         if add_random:
             augmentations = [lambda x : time_warp(x, W), 
@@ -133,12 +135,15 @@ def specAugment(data, W=80, F=27, T=100, mF=1, mT=1, add_random = False):
             num_aug = np.random.choice([1, 2, 3])
             for i in range(num_aug):
                 aug_data.append(augmentations[i](spect))
+                Y.append(y)
         
         struct_aug = time_warp(spect, W)
         for i in range(mF) : struct_aug = frequency_mask(spect, F)
         for i in range(mT) : struct_aug = time_mask(spect, T)
 
         aug_data.append(struct_aug)
-    
+        Y.append(y)
+
     aug_data = np.array(aug_data)
-    return tf.convert_to_tensor(aug_data)
+    Y = np.array(Y)
+    return tf.convert_to_tensor(aug_data), Y

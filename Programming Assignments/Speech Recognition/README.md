@@ -4,11 +4,12 @@
 
 This is a tensorflow implementation of the Deep Speech 2 Model proposed by Baidu Research and Silicon Valley AI Lab.
 
-### Data Generation and Augmentation
+### Phase 1 : Data Generation and Augmentation
 
-[Instructions for the same]
+**Contents**:</br>
 
-****
+* [Augmentation](ds_utils/augmentation.py)
+* [Data Generation](https://github.com/Stellarator-X/ConvoBot/blob/cd4e794ecce99f8c90c1b02efd5883fb7768857e/Programming%20Assignments/Speech%20Recognition/ds_utils/data_manip.py#L50)
 
 ## References
 

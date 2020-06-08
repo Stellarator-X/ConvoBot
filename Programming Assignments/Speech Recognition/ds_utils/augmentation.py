@@ -84,12 +84,12 @@ def time_warp(spectrogram, W=80):
     dcpt =  tf.cast(tf.stack((dest_freq_at_point, dest_time_at_point), axis = -1), dtype = tf.float32)
     dcpt = tf.expand_dims(dcpt, axis = 0)
     
-    spect = tf.reshape(spectrogram, [1, tau, f, 1])
+    spect = tf.reshape(spectrogram, [1, *spectrogram.shape, 1])
     warped_dat, _ = sparse_image_warp(spect, 
                                    source_control_point_locations = scpt, 
                                    dest_control_point_locations = dcpt,
                                    num_boundary_points=2) # Need to see if there is any way to have 1.5-equivalent
-
+    warped_dat = tf.reshape(warped_dat, spectrogram.shape)
     return warped_dat
 
 

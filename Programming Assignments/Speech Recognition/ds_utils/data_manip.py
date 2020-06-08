@@ -1,11 +1,16 @@
 import numpy as np 
+import os
 import tensorflow as tf 
 try:
     import augmentation as aug
 except:
     import ds_utils.augmentation as aug
+try:
+    import aesthetix
+except:
+    import ds_utils.aesthetix as aesthetix
 
-_Data_Dir_  = "LibriSpeech/"
+_Data_Dir_  = "LibriSpeechMini/"
 
 def find_files(root_search_path, files_extension):
     files_list = []
@@ -26,10 +31,14 @@ def clean_label(_str):
         _str = _str.replace("  ", " ")
         return _str
 
-def get_data(path = 'LibriSpeech/'):
+def get_data(path = 'LibriSpeech/', verbose = False):
     text_files = find_files(path, ".txt")
     data = []
-    for text_file in text_files:
+    L = len(text_files)
+    print(L, "Files have been found.")
+    for i, text_file in enumerate(text_files):
+        if verbose:
+            aesthetix.progress_bar("Reading files", i, L)
         directory = os.path.dirname(text_file)
         with open(text_file, "r") as f:
             lines = f.read().split("\n")

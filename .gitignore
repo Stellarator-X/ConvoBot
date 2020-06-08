@@ -12,6 +12,7 @@
 *.vscode/
 *.flac
 LibriSpeech/
+LibriSpeechMini/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

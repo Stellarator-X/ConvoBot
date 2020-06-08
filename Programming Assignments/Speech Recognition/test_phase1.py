@@ -25,7 +25,7 @@ if args.audio_file_path:
     print("Spectrogram of shape:", spect.shape)
     aug.show_spectrogram(spect)
     augspect, _ = specAugment([spect], ["No"])
-    augspect = augspect[0]
+    augspect = augspect[1]
     print("Augmented spectrogram of shape:", augspect.shape)
     aug.show_spectrogram(augspect.numpy())
 

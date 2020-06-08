@@ -3,7 +3,7 @@
 ## Data Augmentation
 
 ```bash
-python3 test_phase1.py test_audio.flac --augmentation spec
+python3 test_phase1.py --augmentation spec --audio_file_path test_audio.flac
 ```
 
 **Output**:

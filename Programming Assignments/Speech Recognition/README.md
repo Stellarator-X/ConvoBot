@@ -12,8 +12,8 @@ A tensorflow implementation of the Deep Speech 2 Model proposed by Baidu Researc
 These can be tested through the [test_phase1](test_phase1.py) script (results can be found [here](Results/Phase1.md)) :
 
 ```terminal
-usage: test_phase1.py [-h] [-a {spec,timeser}] [-d]
-                      audio_file_path dataset_path
+usage: test_phase1.py [-h] [--audio_file_path AUDIO_FILE_PATH]
+                      [-a {spec,timeser}] [--dataset_path DATASET_PATH] [-d]
 
 Tests the Data Generator and Data Augmentation
 
@@ -21,13 +21,15 @@ optional arguments:
   -h, --help            show this help message and exit
 
 Augmentation Tests:
-  audio_file_path       Path to the audio file
+  --audio_file_path AUDIO_FILE_PATH
+                        Path to the audio file
   -a {spec,timeser}, --augmentation {spec,timeser}
                         Type of augmentation : spec => on spectrogram, timeser
                         => on time series
 
 Data Generation Tests:
-  dataset_path          Path to the dataset
+  --dataset_path DATASET_PATH
+                        Path to the dataset
   -d, --data_gen        Creates a Data Generator with the given dataset
 
 Displays the time series/spectrogram of the augmented sample/Instantiates the

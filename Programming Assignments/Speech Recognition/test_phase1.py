@@ -18,7 +18,6 @@ from ds_utils.augmentation import *
 from ds_utils.data_manip import *
 import os 
 os.system("clear")
-
 if args.audio_file_path:
     print("Generating Augmentations:")
     spect = to_spectrogram(args.audio_file_path)
@@ -30,6 +29,8 @@ if args.audio_file_path:
     aug.show_spectrogram(augspect.numpy())
 
 if args.dataset_path:
+    data = get_data(path =args.dataset_path +'/', verbose = True)
+    print("First sample : ",data[0])
     print("Initialised Data Generator : ", end = "")
-    
-    a = SR_DataGenerator()
+    a = SR_DataGenerator(data[:,0], data[:,1])
+    print(a)

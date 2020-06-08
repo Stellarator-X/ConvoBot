@@ -66,7 +66,7 @@ class SR_DataGenerator(tf.keras.utils.Sequence):
     """
      # TODO @stellarator-x Arrange in increasing order for first epoch
 
-    def __init__(self, spectIDs, labels, batch_size = 32, dims = (1025, 1050), augmentation_ratio = 2):
+    def __init__(self, spectIDs, labels, batch_size = 32, dims = (1025, 1050), augmentation_ratio = 2, SortaGrad = False):
         """
         augmentation_ratio : #samples(augdat)/#samples(dat) : choice[1, 2, 3]
         """
@@ -75,6 +75,8 @@ class SR_DataGenerator(tf.keras.utils.Sequence):
         self.dims = dims
         self.batch_size = batch_size
         self.augmentation_ratio = augmentation_ratio
+        self.epoch_num = 0
+        self.SortaGrad = SortaGrad
 
 
     def __len__(self):
@@ -82,8 +84,16 @@ class SR_DataGenerator(tf.keras.utils.Sequence):
 
     def on_epoch_end(self):
         self.indices = np.arange(len(self.spectIDs))
-        if self.shuffle is True:
+
+        if self.SortaGrad and self.epoch_num == 0:
+            # Arrange indices by length of transcription
+            indices = self.indices.tolist()
+            indices.sort(key = lambda x : len(labels[x]))
+            self.indices = np.array(indices)
+            
+        elif self.shuffle is True:
             np.random.shuffle(self.indices)
+        self.epoch_num += 1
     
     def __data_generation(self, spects_temp):
         X = np.empty((self.batch_size, *self.dims))

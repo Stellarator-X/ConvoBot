@@ -1,9 +1,16 @@
-import os
 import numpy as np 
+import os
 import tensorflow as tf 
-import augmentation as aug
+try:
+    import augmentation as aug
+except:
+    import ds_utils.augmentation as aug
+try:
+    import aesthetix
+except:
+    import ds_utils.aesthetix as aesthetix
 
-_Data_Dir_  = "LibriSpeech/"
+_Data_Dir_  = "LibriSpeechMini/"
 
 def find_files(root_search_path, files_extension):
     files_list = []
@@ -24,10 +31,14 @@ def clean_label(_str):
         _str = _str.replace("  ", " ")
         return _str
 
-def get_data(path = 'LibriSpeech/'):
+def get_data(path = 'LibriSpeech/', verbose = False):
     text_files = find_files(path, ".txt")
     data = []
-    for text_file in text_files:
+    L = len(text_files)
+    print(L, "Files have been found.")
+    for i, text_file in enumerate(text_files):
+        if verbose:
+            aesthetix.progress_bar("Reading files", i, L)
         directory = os.path.dirname(text_file)
         with open(text_file, "r") as f:
             lines = f.read().split("\n")
@@ -55,7 +66,7 @@ class SR_DataGenerator(tf.keras.utils.Sequence):
     """
      # TODO @stellarator-x Arrange in increasing order for first epoch
 
-    def __init__(self, spectIDs, labels, batch_size = 32, dims = (1025, 1050), augmentation_ratio = 2):
+    def __init__(self, spectIDs, labels, batch_size = 32, dims = (1025, 1050), augmentation_ratio = 2, SortaGrad = False):
         """
         augmentation_ratio : #samples(augdat)/#samples(dat) : choice[1, 2, 3]
         """
@@ -64,6 +75,8 @@ class SR_DataGenerator(tf.keras.utils.Sequence):
         self.dims = dims
         self.batch_size = batch_size
         self.augmentation_ratio = augmentation_ratio
+        self.epoch_num = 0
+        self.SortaGrad = SortaGrad
 
 
     def __len__(self):
@@ -71,8 +84,16 @@ class SR_DataGenerator(tf.keras.utils.Sequence):
 
     def on_epoch_end(self):
         self.indices = np.arange(len(self.spectIDs))
-        if self.shuffle is True:
+
+        if self.SortaGrad and self.epoch_num == 0:
+            # Arrange indices by length of transcription
+            indices = self.indices.tolist()
+            indices.sort(key = lambda x : len(labels[x]))
+            self.indices = np.array(indices)
+            
+        elif self.shuffle is True:
             np.random.shuffle(self.indices)
+        self.epoch_num += 1
     
     def __data_generation(self, spects_temp):
         X = np.empty((self.batch_size, *self.dims))

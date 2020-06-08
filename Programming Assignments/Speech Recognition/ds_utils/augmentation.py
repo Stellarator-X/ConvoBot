@@ -3,6 +3,7 @@ import librosa.display
 import tensorflow as tf
 from tensorflow_addons.image import sparse_image_warp
 import numpy as np 
+import matplotlib.pyplot as plt
 
 # TODO mire-purging : @stellarator-x
 
@@ -54,6 +55,11 @@ def to_spectrogram(audio_file):
     spectrogram = librosa.amplitude_to_db(abs(X))
     return spectrogram
 
+def show_spectrogram(spectrogram, sr = 44100):
+    plt.figure(figsize=(14, 5))
+    librosa.display.specshow(spectrogram, sr=sr, x_axis='time', y_axis='log')
+    plt.colorbar()
+    plt.show()
 
 """
 SpecAugment Methods
@@ -67,7 +73,7 @@ def time_warp(spectrogram, W=80):
     # Source control point locations
     point = tf.random.uniform(shape = [], minval = W, maxval = tau - W, dtype = tf.int32)
     freq_at_point = tf.range(f//2) # The column of the spectorgram at point
-    time_at_point = tf.ones_like(freq_at_point, dtype=float32)*point # control points on the time axis 
+    time_at_point = tf.ones_like(freq_at_point, dtype=tf.int32)*point # control points on the time axis 
     scpt = tf.cast(tf.stack((freq_at_point, time_at_point), axis = -1), dtype = tf.float32)
     scpt = tf.expand_dims(scpt, axis = 0)
 
@@ -78,12 +84,12 @@ def time_warp(spectrogram, W=80):
     dcpt =  tf.cast(tf.stack((dest_freq_at_point, dest_time_at_point), axis = -1), dtype = tf.float32)
     dcpt = tf.expand_dims(dcpt, axis = 0)
     
-    
-    warped_dat, _ = sparse_image_warp(spectrogram, 
+    spect = tf.reshape(spectrogram, [1, *spectrogram.shape, 1])
+    warped_dat, _ = sparse_image_warp(spect, 
                                    source_control_point_locations = scpt, 
-                                   dest_control_point_location = dcspt,
+                                   dest_control_point_locations = dcpt,
                                    num_boundary_points=2) # Need to see if there is any way to have 1.5-equivalent
-
+    warped_dat = tf.reshape(warped_dat, spectrogram.shape)
     return warped_dat
 
 
@@ -92,12 +98,13 @@ def frequency_mask(spectrogram, F=27):
     # Adding a frequency mask
     f = tf.random.uniform([], minval = 0, maxval = F, dtype = tf.int32)
     v, T = spectrogram.shape
-    f0 = tf.random.uniform([], minval = 0, maxval = v-f, dtype = tf.int32)
+    f0 = tf.random.uniform([], minval = 0, maxval = v//2-f, dtype = tf.int32)
     res1 = spectrogram[:f0,:]
-    res2 = spectrogram[f0+f, :]
+    res2 = spectrogram[f0+f:, :]
     mask = tf.zeros_like(spectrogram[f0:f0+f,:])
-    mased_spec = tf.concat([res1, mask, res2], axis = 0)
-    return tf.cast(mased_spec, dtype = tf.float64)
+    masked_spec = tf.concat([res1, mask, res2], axis = 0)
+    assert masked_spec.shape == spectrogram.shape
+    return tf.cast(masked_spec, dtype = tf.float64)
 
 
 def time_mask(spectrogram, T=100):
@@ -107,10 +114,11 @@ def time_mask(spectrogram, T=100):
     _, tau = spectrogram.shape
     t0 = tf.random.uniform([], minval = 0, maxval = tau-t, dtype = tf.int32)
     res1 = spectrogram[:,:t0]
-    res2 = sprectrogram[:, t0:t0+t]
+    res2 = spectrogram[:, t0+t:]
     mask = tf.zeros_like(spectrogram[:, t0:t0+t])
-    mased_spec = tf.concat([res1, mask, res2], axis = 1)
-    return tf.cast(mased_spec, dtype = tf.float64)
+    masked_spec = tf.concat([res1, mask, res2], axis = 1)
+    assert masked_spec.shape == spectrogram.shape
+    return tf.cast(masked_spec, dtype = tf.float64)
 
 def specAugment(data,labels, W=80, F=27, T=100, mF=1, mT=1, add_random = False):
     """
@@ -141,13 +149,15 @@ def specAugment(data,labels, W=80, F=27, T=100, mF=1, mT=1, add_random = False):
                             lambda x:time_mask(x, T) ]
             
             num_aug = np.random.choice([1, 2, 3])
+            aug = spect
             for i in range(num_aug):
-                aug_data.append(augmentations[i](spect))
+                aug = augmentations[i](aug)
+                aug_data.append(aug)
                 Y.append(y)
         
         struct_aug = time_warp(spect, W)
-        for i in range(mF) : struct_aug = frequency_mask(spect, F)
-        for i in range(mT) : struct_aug = time_mask(spect, T)
+        for i in range(mF) : struct_aug = frequency_mask(struct_aug, F)
+        for i in range(mT) : struct_aug = time_mask(struct_aug, T)
 
         aug_data.append(struct_aug)
         Y.append(y)

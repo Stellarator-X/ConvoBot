@@ -1,7 +1,9 @@
-import os
 import numpy as np 
 import tensorflow as tf 
-import augmentation as aug
+try:
+    import augmentation as aug
+except:
+    import ds_utils.augmentation as aug
 
 _Data_Dir_  = "LibriSpeech/"
 

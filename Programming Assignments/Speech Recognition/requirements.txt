@@ -1,0 +1,6 @@
+numpy
+matplotlib
+librosa
+pydub
+tensorflow
+tensorflow_addons

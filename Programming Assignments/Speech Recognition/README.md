@@ -2,6 +2,8 @@
 
 A tensorflow implementation of the Deep Speech 2 Model proposed by Baidu Research and Silicon Valley AI Lab.
 
+**Installing the required dependencies** : `$ pip install -r requirements.txt`
+
 ## Phase 1 : Data Generation and Augmentation
 
 **Contents**:</br>

@@ -19,7 +19,7 @@ TODO
 
 ALPHABET_LENGTH = 29
 eos_index  = 29
-max_length = 100
+max_length = 2850
 
 class DSModel():
 
@@ -76,36 +76,37 @@ class DSModel():
                 return
             if ch is not "_":label+=ch
         return label
-
-    # @tf.function
+    
+    @tf.function # TODO : see why the decorator isn't working
     def ctc_find_eos(self, y_true, y_pred):
         # From SO : Todo : var init, predlength objective
         # convert y_pred from one-hot to label indices
-        # y_pred_ind = K.argmax(y_pred, axis=-1)
+        y_pred_ind = K.argmax(y_pred, axis=-1)
 
-        # #to make sure y_pred has one end_of_sentence (to avoid errors)
-        # y_pred_end = K.concatenate([y_pred_ind[:,:-1], eos_index * K.ones_like(y_pred_ind[:,-1:])], axis = 1)
+        #to make sure y_pred has one end_of_sentence (to avoid errors)
+        y_pred_end = K.concatenate([y_pred_ind[:,:-1], eos_index * K.ones_like(y_pred_ind[:,-1:])], axis = 1)
 
-        # #to make sure the first occurrence of the char is more important than subsequent ones
-        # occurrence_weights = K.arange(start = max_length, stop=0, dtype=K.floatx())
+        #to make sure the first occurrence of the char is more important than subsequent ones
+        occurrence_weights = K.arange(start = 0, stop=max_length, dtype=K.floatx())
 
-        # is_eos_true = K.cast_to_floatx(K.equal(y_true, eos_index))
-        # is_eos_pred = K.cast_to_floatx(K.equal(y_pred_end, eos_index))
+        is_eos_true = K.cast_to_floatx(K.equal(y_true, eos_index))
+        is_eos_pred = K.cast_to_floatx(K.equal(y_pred_end, eos_index))
 
-        # #lengths
-        # true_lengths = 1 + K.argmax(occurrence_weights * is_eos_true, axis=1)
-        # pred_lengths = 1 + K.argmax(occurrence_weights * is_eos_pred, axis=1)
+        #lengths
+        true_lengths = 1 + K.argmax(occurrence_weights * is_eos_true, axis=1)
+        pred_lengths = 1 + K.argmax(occurrence_weights * is_eos_pred, axis=1)
 
-        # #reshape
-        # true_lengths = K.reshape(true_lengths, (-1,1))
-        # pred_lengths = K.reshape(pred_lengths, (-1,1))
+        #reshape
+        true_lengths = K.reshape(true_lengths, (-1,1))
+        pred_lengths = K.reshape(pred_lengths, (-1,1))
 
-        # return K.ctc_batch_cost(y_true, y_pred, pred_lengths, true_lengths) + self.beta(pred_lengths) # Maybe a temp fix
-        
-        label_length = tf.convert_to_tensor(np.array([len(y) for y in y_true.numpy()]))
-        logit_length = tf.convert_to_tensor(np.array([y_pred.shape[1] for i in y_pred.numpy()]))
-        ctcloss = tf.nn.ctc_loss(y_true, y_pred, label_length, logit_length, logits_time_major=False)
-        return ctcloss
+        return K.ctc_batch_cost(y_true, y_pred, pred_lengths, true_lengths)# + self.beta(pred_lengths) # Maybe a temp fix
+        # y_pred_ind = tf.cast(tf.expand_dims(K.argmax(y_pred, axis = -1), -1), tf.float64)
+
+        # label_length = tf.cast(tf.convert_to_tensor(np.array([y_true.shape[-1]]*y_true.shape[1])), dtype = tf.int32)
+        # logit_length = tf.cast(tf.convert_to_tensor(np.array([2850]*y_pred.shape[1])), dtype = tf.int32)
+        # ctcloss = tf.nn.ctc_loss(y_true, y_pred_ind, label_length, logit_length, logits_time_major=False)
+        # return ctcloss
 
     @staticmethod
     def net_loss(y_true, y_pred):
@@ -118,7 +119,7 @@ class DSModel():
         self.model.summary()
 
     def compile(self):
-        return self.model.compile(loss  = self.ctc_find_eos, optimizer = 'adam', metrics = ['word_error_rate'])
+        return self.model.compile(loss  = self.ctc_find_eos, optimizer = 'adam', metrics = ['accuracy'])
 
     def fit(self, **kwargs):
         print(kwargs)
@@ -132,21 +133,3 @@ class DSModel():
         for x in X.numpy():
             pred.append(self.get_label(x))
         return np.array(pred)
-
-if __name__ == "__main__":
-    import string
-    chars = list(string.ascii_lowercase)
-    # print(chars)
-    char_map = {ch:i for i, ch in enumerate(chars)}
-
-    char_map['<space>'] = 26
-    char_map['_'] = 27
-    char_map['eos'] = 28
-    mod = DSModel((1025, 2000), char_map=char_map)
-    mod.build()
-    mod.compile()
-    print(mod.model.summary())
-    pred = mod.model.predict(np.array([np.random.randn(1025, 2000)]))
-    print(pred.shape)
-    lab = mod.get_label(pred[0])
-    print(lab)

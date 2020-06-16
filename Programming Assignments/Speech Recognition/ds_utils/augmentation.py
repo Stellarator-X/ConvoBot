@@ -48,11 +48,15 @@ def pitch(data, sampling_rate, pitch_factor):
 def speed(data, speed_factor):
     return librosa.effects.time_stretch(data, speed_factor)
 
-def to_spectrogram(audio_file):
+def to_spectrogram(audio_file, padding_shape = (1025, 2000)):
     # Loads the audio file and returns the spectrogram
     x, sr = librosa.load(audio_file, sr = 44100)
     X = librosa.stft(x)
     spectrogram = librosa.amplitude_to_db(abs(X))
+    if spectrogram.shape!=padding_shape:
+        # Padded shape
+        cols = padding_shape[1] - spectrogram.shape[1]
+        spectrogram = np.array([np.append(spectrogram[i], [0.0]*cols) for i in range(spectrogram.shape[0])])
     return spectrogram
 
 def show_spectrogram(spectrogram, sr = 44100):
@@ -84,7 +88,7 @@ def time_warp(spectrogram, W=80):
     dcpt =  tf.cast(tf.stack((dest_freq_at_point, dest_time_at_point), axis = -1), dtype = tf.float32)
     dcpt = tf.expand_dims(dcpt, axis = 0)
     
-    spect = tf.reshape(spectrogram, [1, *spectrogram.shape, 1])
+    spect = tf.cast(tf.reshape(spectrogram, [1, *spectrogram.shape, 1]), dtype = tf.float32)
     warped_dat, _ = sparse_image_warp(spect, 
                                    source_control_point_locations = scpt, 
                                    dest_control_point_locations = dcpt,

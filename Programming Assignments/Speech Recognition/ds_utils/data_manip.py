@@ -4,6 +4,7 @@ import tensorflow as tf
 try:
     import augmentation as aug
 except:
+    os.system("pwd")
     import ds_utils.augmentation as aug
 try:
     import aesthetix
@@ -12,7 +13,7 @@ except:
 
 _Data_Dir_  = "LibriSpeechMini/"
 
-def find_files(root_search_path, files_extension):
+def find_files(root_search_path = "", files_extension=""):
     files_list = []
     for root, _, files in os.walk(root_search_path):
         files_list.extend([os.path.join(root, file) for file in files if file.endswith(files_extension)])
@@ -52,6 +53,7 @@ def get_data(path = 'LibriSpeech/', verbose = False):
                     data.append([audio_file, clean_label(line.replace(head, "")), None])
     
     data = np.array(data)
+    print(data.shape)
     data = data[:, :-1] # The last index is NoneType
     print(f"Loaded dataset with shape {data.shape}")
     return data
@@ -66,7 +68,7 @@ class SR_DataGenerator(tf.keras.utils.Sequence):
     """
      # TODO @stellarator-x Arrange in increasing order for first epoch
 
-    def __init__(self, spectIDs, labels, batch_size = 32, dims = (1025, 1050), augmentation_ratio = 2, SortaGrad = False):
+    def __init__(self, spectIDs, labels, batch_size = 32, dims = (1025, 2000), augmentation_ratio = 2, SortaGrad = False):
         """
         augmentation_ratio : #samples(augdat)/#samples(dat) : choice[1, 2, 3]
         """
@@ -77,6 +79,13 @@ class SR_DataGenerator(tf.keras.utils.Sequence):
         self.augmentation_ratio = augmentation_ratio
         self.epoch_num = 0
         self.SortaGrad = SortaGrad
+        self.indices = np.arange(len(self.spectIDs))
+        self.pwd = os.popen("pwd").read()[:-1]+"/"
+        if self.SortaGrad and self.epoch_num == 0:
+            # Arrange indices by length of transcription
+            indices = self.indices.tolist()
+            indices.sort(key = lambda x : len(labels[x]))
+            self.indices = np.array(indices)
 
 
     def __len__(self):
@@ -100,22 +109,30 @@ class SR_DataGenerator(tf.keras.utils.Sequence):
         y = np.empty((self.batch_size), dtype = str)
 
         for i, ex in enumerate(spects_temp):
-            path_to_id = find_files(_Data_Dir_, ex + ".flac")[0]  #Getting the audio file for the id
-            X[i,] = aug.to_spectrogram(path_to_id)
-            y[i] = self.labels[ID]
+            # path_to_id = find_files(root_search_path=self.pwd, files_extension= ex)
+            # print( path_to_id)
+            # input()  #Getting the audio file for the id
+            X[i,] = aug.to_spectrogram(ex)
+            y[i] = self.labels[i]
 
         # Augment X
         if self.augmentation_ratio is not 1:
-            X, y = aug.specAugment(X, add_random = (self.augmentation_ratio==3))
+            X, y = aug.specAugment(X, y,add_random = (self.augmentation_ratio==3))
 
         return X, y
 
     def __getitem__(self, index):
         # Generates on batch of data
-        indices = self.indices[index*self.batch_size/self.augmentation_ratio : (index+1)*self.batch_size/self.augmentation_ratio]
+        indices = self.indices[index*int(self.batch_size/self.augmentation_ratio) : (index+1)*int(self.batch_size/self.augmentation_ratio)]
 
-        spects_temp = [self.spects[k] for k in indices]
+        spects_temp = [self.spectIDs[k] for k in indices]
 
         X, y = self.__data_generation(spects_temp)
 
         return X, y
+
+if __name__ == "__main__":
+    datset = get_data(_Data_Dir_, True)
+    gen = SR_DataGenerator(datset[:,0], datset[:,1])
+    item = gen.__getitem__(0)
+    print(item.shape)

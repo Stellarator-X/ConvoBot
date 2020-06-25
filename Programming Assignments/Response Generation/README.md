@@ -15,10 +15,6 @@ Installing Required Dependencies : `$ pip install -r requirements.txt`
 
 ***
 
-TODO : Add Topic Attention with Twitter LDA Model
-
-***
-
 ## References
 
 * _Topic Aware Neural Response Generation_
@@ -32,3 +28,8 @@ TODO : Add Topic Attention with Twitter LDA Model
   * **Authors** : Marina Sokolova, Kanyi Huang, Stan Matwin, Joshua Ramisch, Vera Sazonova, Renee Black, Chris Orwa, Sidney Ochieng, Nanjira Sambuli
   * **Tags** : Latent Dirichlet Allocation; Topic Models; Statistical machine translation
   * **Published** : 8 Aug 2016
+
+* _Cornell Movie Dialogs_(Dataset)
+  * **Link** : [https://www.cs.cornell.edu/~cristian/Cornell_Movie-Dialogs_Corpus.html]
+  * **Authors** : Cristian Danescu-Niculescu-Mizil and Lillian Lee
+  * **Published** : 2011

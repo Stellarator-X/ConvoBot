@@ -11,7 +11,7 @@ while True:
     if string is not "":
         # st.write("`This looks like code`")
         st.write(f"`{get_response_beam(string)}`")
-    
+        
     if string is not "":
         continue
     else:

@@ -16,6 +16,12 @@ Installing Required Dependencies : `$ pip install -r requirements.txt`
 
 ***
 
+### Samples
+
+![samplegif](samples/conv.gif)
+
+***
+
 ## References
 
 * _Topic Aware Neural Response Generation_

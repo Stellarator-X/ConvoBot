@@ -14,7 +14,7 @@ def clean_str(_str):
   _str = _str.lower()
   _str = _str.replace(".", "")
   _str = _str.replace(",", "")
-  _str = _str.repl
+  _str = _str.replace("?", "")
   _str = _str.replace("!", "")
   _str = _str.replace(":", "")
   _str = _str.replace("-", " ")
@@ -23,7 +23,7 @@ def clean_str(_str):
   _str = _str.replace("  ", " ")
   return _str
 
-with open("bin/Tokens.txt", 'r') as file:
+with open("bin/Tokens_20k.txt", 'r') as file:
     js_string = file.read()
     tokenizer = tokenizer_from_json(js_string)
 
@@ -65,30 +65,85 @@ for word, i in word_index.items():
     if embedding_vector is not None:
         embeddings_matrix[i] = embedding_vector;
 
+# LDA Model
+from gensim.test.utils import datapath
+from gensim.models.ldamodel import LdaModel
+fname = 'LDA/model/LDA.model'
+ConvLda = LdaModel.load(fname, mmap='r')
+
+# Defining the topic prediction layer
+
+class TopicPrediction(tf.keras.layers.Layer): 
+  """
+    Topic Prediction using a pre-trained gensim LdaModel
+    init
+      params : 
+        LdaModel : instance of trained gensim.ldamodel.LdaModel
+        num_topics : num_topics for the model
+        dims : required dims for topic vector
+    call() 
+      params:
+        inp : input batch of shape (batch_size, maxlen)
+      returns :
+          predicted topic tensor of shape (batch_size, dims)
+  """
+  def __init__(self, ldaModel, num_topics, dims):
+    super(TopicPrediction, self).__init__(trainable= False, dynamic = True)
+    self.ldaModel = ldaModel
+    assert(dims >= num_topics), f"The required dims({dims}) are less than num_topics ({num_topics})"
+    self.dims = dims
+    self.num_topics=num_topics
+
+  def build(self, input_shape):
+    return
+
+  def convert_to_corpus(self, sequences):
+    corpus = []
+    for num, line in enumerate(sequences):
+      counts = [list(line).count(elt) for elt in line]
+      line_ = list(set([(line.numpy()[i], counts[i]) for i in range(len(counts))]))
+      corpus.append(line_)
+    return corpus
+
+  def get_config(self):
+    return {
+        'lda_model' : self.ldaModel,
+        'dims' : self.dims,
+        'num_topics' : self.num_topics,
+    }
+
+  def call(self, inp):
+    # print("call called")
+    bs = inp.shape[0]
+    vec = np.zeros((bs,self.dims))
+    corpus = self.convert_to_corpus(inp)
+    topic_vec = self.ldaModel.get_document_topics(corpus, minimum_probability = 0.0)
+    topic_vec = np.array(topic_vec)[:, :, 1]
+    vec[:, :self.num_topics] = topic_vec
+    return tf.convert_to_tensor(vec, dtype = tf.float32)
 
 # The encoder and Decoder Models
 
 class Encoder(tf.keras.Model):
   
-  def __init__(self, vocab_size, embedding_dim, encoder_units, batch_size):
+  def __init__(self, vocab_size, embedding_dim, encoder_units, batch_size, lda_model):
     super(Encoder, self).__init__()
     self.batch_size = batch_size
     self.encoder_units = encoder_units
     self.embedding = Embedding(vocab_size, embedding_dim, weights=[embeddings_matrix], trainable=False)
     self.gru = GRU(self.encoder_units, return_sequences = True, return_state=True, recurrent_initializer='glorot_uniform')
+    self.topic_pred = TopicPrediction(ldaModel=lda_model, num_topics=lda_model.num_topics, dims=1000)
 
   def call(self, x, hidden):
+    topic_vector = self.topic_pred.call(x)
     x = self.embedding(x)
     output, state = self.gru(x, initial_state = hidden)
-    return output, state
+    return output, state, topic_vector
   
   def initialize_hidden_state(self):
     return tf.zeros((self.batch_size, self.encoder_units))
 
-encoder = Encoder(vocab_size+1, embedding_dim, units, BATCH_SIZE)
-sagetmple_hidden = encoder.initialize_hidden_state()
-# sample_out, sample_hidden = encoder(example_input_batch,sample_hidden)
-
+encoder = Encoder(vocab_size+1, embedding_dim, units, BATCH_SIZE, lda_model=ConvLda)
 class AttentionLayer(tf.keras.layers.Layer):
   
   def __init__(self, units):
@@ -119,7 +174,6 @@ class AttentionLayer(tf.keras.layers.Layer):
 attention_layer = AttentionLayer(10)
 # attention_result, attention_weights = attention_layer(sample_hidden, sample_out)
 
-
 # The decoder model
 
 class Decoder(tf.keras.Model):
@@ -131,23 +185,24 @@ class Decoder(tf.keras.Model):
     self.decoder_units = decoder_units
     self.embedding = Embedding(vocab_size, embedding_dim, weights=[embeddings_matrix], trainable=False)
     self.gru = GRU(self.decoder_units, return_sequences=True, return_state=True, recurrent_initializer='glorot_uniform')
-
+    # self.topic_pred = TopicPrediction(ldaModel = lda_model, num_topics=lda_model.num_topics, dims = 1000)
     self.FC = Dense(self.vocab_size)
     self.attention = AttentionLayer(self.decoder_units)
 
-  def call(self, x, hidden, encoder_output):
+  def call(self, x, hidden, encoder_output,input_topic):
     context_vector, attention_weights = self.attention(hidden, encoder_output)
+    context_and_topic = tf.concat([context_vector, input_topic], axis = -1)
     x = self.embedding(x)
     x = tf.concat([tf.expand_dims(context_vector, 1), x], axis = -1)
-
     output, state = self.gru(x)
 
     output = tf.reshape(output, (-1, output.shape[2]))
 
     x = self.FC(output)
 
+    
     return x, state, attention_weights
-  
+
 decoder = Decoder(vocab_size+1, embedding_dim, units, BATCH_SIZE)
 
 # sample_decoder_output, _, _ = decoder(tf.random.uniform((BATCH_SIZE, 1)), sample_hidden, sample_out)
@@ -165,7 +220,7 @@ def loss_function(real, pred):
   return tf.reduce_mean(loss)
 
 # Defining checkpoint variables
-checkpoint_dir = 'bin/training_checkpoints'
+checkpoint_dir = 'bin/4K_topic_training_checkpoints'
 checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
 checkpoint = tf.train.Checkpoint(optimizer=optimizer, encoder=encoder, decoder=decoder)
 
@@ -179,13 +234,13 @@ def evaluate(sentence):
 
   hidden = [tf.zeros((1, units))]
 
-  encoder_output, encoder_hidden = encoder(inputs, hidden)
+  encoder_output, encoder_hidden, encoder_topic = encoder(inputs, hidden)
 
   decoder_hidden = encoder_hidden
   decoder_input = tf.expand_dims([word_index['<start>']], 0)
 
   for t in range(max_length):
-    predictions, decoder_hidden, attention_weights = decoder(decoder_input, decoder_hidden, encoder_output)
+    predictions, decoder_hidden, attention_weights = decoder(decoder_input, decoder_hidden, encoder_output, encoder_topic)
 
     # Storing the attention weights to plot later
     attention_weights = tf.reshape(attention_weights, (-1, ))
@@ -202,6 +257,7 @@ def evaluate(sentence):
     decoder_input = tf.expand_dims([predicted_id], 0)
 
   return result, sentence, attention_plot
+
 
 # Plotting attention weights
 import matplotlib.ticker as ticker
@@ -247,7 +303,7 @@ def argmax_beam(tensor, width):
   # input()
   return args
 
-def beam_search_evaluate(sentence, beam_width=3, length_norm_alpha = 0.5):
+def beam_search_evaluate(sentence, beam_width=3, length_penalty_coef = 0.5, end_penalty_coef = 0.01):
   inputs = encode_texts([sentence])
   inputs = tf.convert_to_tensor(inputs)
   result = ['']*beam_width
@@ -255,12 +311,12 @@ def beam_search_evaluate(sentence, beam_width=3, length_norm_alpha = 0.5):
   scores_list = []
   scores = [0]*beam_width
   hidden = [tf.zeros((1, units))]
-  encoder_output, encoder_hidden = encoder(inputs, hidden)
+  encoder_output, encoder_hidden, encoder_topic = encoder(inputs, hidden)
   decoder_hidden = encoder_hidden
   decoder_input = tf.expand_dims([word_index['<start>']], 0)
   
   # At t = 0
-  prediction, decoder_hidden, _ = decoder(decoder_input, decoder_hidden, encoder_output)
+  prediction, decoder_hidden, _ = decoder(decoder_input, decoder_hidden, encoder_output, encoder_topic)
   ids = argmax_beam(prediction, beam_width)
   predicted_id = []
   for i, id in enumerate(ids):
@@ -276,7 +332,7 @@ def beam_search_evaluate(sentence, beam_width=3, length_norm_alpha = 0.5):
     predictions = []
     
     for i in range(beam_width):
-      pred, decoder_hidden[i], _ = decoder(decoder_input[i], decoder_hidden[i], encoder_output)
+      pred, decoder_hidden[i], _ = decoder(decoder_input[i], decoder_hidden[i], encoder_output, encoder_topic)
       predictions.append(pred)
     ids = [] # List of tuples : (id, predicted probability, decoder_hidden from beam)
     
@@ -293,14 +349,18 @@ def beam_search_evaluate(sentence, beam_width=3, length_norm_alpha = 0.5):
       pr_id, score, decoder_hidden[i], result[i] = ids[idx]
       result[i] += index_word[pr_id] + " "
       predicted_id.append(pr_id)
-      scores[i] = np.log(score.numpy())
+      scores[i] = score.numpy()
       
 
     for i in range(beam_width):
       if index_word[predicted_id[i]]=='<end>':        
-        results.append(result[i]) 
-        # scores_list.append(scores[i])#*np.log(t))
-        
+        results.append(result[i])
+        norm_score = np.log(scores[i])
+        length_penalty = ((5+t)/(5+1))**length_penalty_coef
+        end_penalty = end_penalty_coef*len(sentence.split())/t
+        norm_score = (norm_score/length_penalty) - end_penalty 
+        scores_list.append(norm_score)
+      
     
     if len(results) == beam_width:
       return results, scores

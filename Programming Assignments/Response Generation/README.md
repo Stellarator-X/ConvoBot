@@ -2,23 +2,27 @@
 
 Sequence-to-Sequence Model for generating responses, trained on stimulus-response samples from movie subtitiles.
 
-Installing Required Dependencies : `$ pip install -r requirements.txt`
+Installing Required Dependencies :
+
+```$ pip install -r requirements.txt```
 
 ## Sequence to Sequence Model
 
 ### Contents
 
 1. [responseGeneration_keras.ipynb](responseGeneration_keras.ipynb) - Notebook for training and testing the model
-2. [response_generation.py](response_generation.py) - Script for loading the trained model from saved checkpoints, API for response generation with the model
-3. [deployment.py](deployment.py) - uses the streamlit API to generate responses through the response_generation script. Can be run with :</br>
-`$streamlit run deployment.py`
-
+2. [responseGeneration_TA.ipynb](responseGeneration_TA.ipynb) - Notebook for training the model with TA.
+3. [response_generation.py](response_generation.py) - Script for loading the trained model from saved checkpoints, API for response generation with the model
+4. [TA_response_generation.py](TA_response_generation.py) - Script for loading the trained TA-Seq2Seq model from saved checkpoints, API for response generation.
+5. [deployment.py](deployment.py) - uses the streamlit API to generate responses through the two scripts. Can be run with :</br>
+```$streamlit run deployment.py```
 
 ***
 
-### Samples
+### Sample Responses
 
-![samplegif](samples/conv.gif)
+<center><img src="samples/StS.webm.gif"></center>
+<center><img src="samples/TAS.webm.gif"></center>
 
 ***
 

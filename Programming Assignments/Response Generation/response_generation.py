@@ -14,7 +14,7 @@ def clean_str(_str):
   _str = _str.lower()
   _str = _str.replace(".", "")
   _str = _str.replace(",", "")
-  _str = _str.replace("?", "")
+  _str = _str.repl
   _str = _str.replace("!", "")
   _str = _str.replace(":", "")
   _str = _str.replace("-", " ")
@@ -23,7 +23,7 @@ def clean_str(_str):
   _str = _str.replace("  ", " ")
   return _str
 
-with open("Tokens.txt", 'r') as file:
+with open("bin/Tokens.txt", 'r') as file:
     js_string = file.read()
     tokenizer = tokenizer_from_json(js_string)
 

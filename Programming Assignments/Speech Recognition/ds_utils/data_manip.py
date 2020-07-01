@@ -53,7 +53,7 @@ def get_data(path = 'LibriSpeech/', verbose = False):
                     data.append([audio_file, clean_label(line.replace(head, "")), None])
     
     data = np.array(data)
-    print(data.shape)
+    # print(data.shape)
     data = data[:, :-1] # The last index is NoneType
     print(f"Loaded dataset with shape {data.shape}")
     return data

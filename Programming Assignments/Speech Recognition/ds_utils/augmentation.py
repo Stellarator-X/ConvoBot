@@ -4,66 +4,37 @@ import tensorflow as tf
 from tensorflow_addons.image import sparse_image_warp
 import numpy as np 
 import matplotlib.pyplot as plt
+from spela.spectrogram import Spectrogram
 
-# TODO mire-purging : @stellarator-x
+# Spectrogram Model
+SR = 16000
+max_time = 15
 
-def noise(data, noise_factor):
-    noise = np.random.randn(len(data))
-    augmented_data = data + noise_factor * noise
-    # Cast back to same data type
-    augmented_data = augmented_data.astype(type(data[0]))
-    return augmented_data
-
-def shift(data, sampling_rate, shift_max, shift_direction):
-    shift = np.random.randint(sampling_rate * shift_max)
-    if shift_direction == 'right':
-        shift = -shift
-    elif self.shift_direction == 'both':
-        direction = np.random.randint(0, 2)
-        if direction == 1:
-            shift = -shift    
-
-    augmented_data = np.roll(data, shift)
-    # Set to silence for heading/ tailing
-    if shift > 0:
-        augmented_data[:shift] = 0
-    else:
-        augmented_data[shift:] = 0
-    return augmented_data
-
-def stretch(data, rate=1):
-    input_length = 16000
-    data = librosa.effects.time_stretch(data, rate)
-    if len(data)>input_length:
-        data = data[:input_length]
-    else:
-        data = np.pad(data, (0, max(0, input_length - len(data))), "constant")
-
-    return data
-
-def pitch(data, sampling_rate, pitch_factor):
-    return librosa.effects.pitch_shift(data, sampling_rate, pitch_factor)
+GetSpec = tf.keras.models.Sequential( [Spectrogram(n_dft=512, n_hop=256, input_shape=(1, SR*max_time), 
+          return_decibel_spectrogram=False, power_spectrogram=2.0, 
+          trainable_kernel=False, name='static_stft')] )
 
 
-def speed(data, speed_factor):
-    return librosa.effects.time_stretch(data, speed_factor)
+GetSpec.compile()
+# Spectrogram from file
+def to_spectrograms(audio_files, max_time = max_time):
+    # Loads the audio files and returns the spectrograms
+    X = []
+    for audio_file in audio_files:
+      x, _ = librosa.load(audio_file, sr = SR)
+      if len(x)<SR*max_time :x = list(x) + [0]*((SR*max_time)-len(x))
+      x = x[:SR*max_time]
+      assert len(x)==SR*max_time, f"{len(x)}, expected : {SR*max_time}"
+      X.append(x)
+    X = np.array(X)
+    X = np.reshape(X, (len(audio_files), 1, SR*max_time))
+    spectrograms = GetSpec.predict(X)
+    return spectrograms[:, :, :, 0]
 
-def to_spectrogram(audio_file, padding_shape = (1025, 2000)):
-    # Loads the audio file and returns the spectrogram
-    x, sr = librosa.load(audio_file, sr = 44100)
-    X = librosa.stft(x)
-    spectrogram = librosa.amplitude_to_db(abs(X))
-    if spectrogram.shape!=padding_shape:
-        # Padded shape
-        cols = padding_shape[1] - spectrogram.shape[1]
-        spectrogram = np.array([np.append(spectrogram[i], [0.0]*cols) for i in range(spectrogram.shape[0])])
-    return spectrogram
+def show_spectrogram(spec):
+  spec = librosa.power_to_db(spec)
+  librosa.display.specshow(spec, y_axis='linear', sr=SR)
 
-def show_spectrogram(spectrogram, sr = 44100):
-    plt.figure(figsize=(14, 5))
-    librosa.display.specshow(spectrogram, sr=sr, x_axis='time', y_axis='log')
-    plt.colorbar()
-    plt.show()
 
 """
 SpecAugment Methods

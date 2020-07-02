@@ -2,16 +2,11 @@ import numpy as np
 import os
 import tensorflow as tf 
 try:
-    import augmentation as aug
+    from augmentation import *
 except:
     os.system("pwd")
-    import ds_utils.augmentation as aug
-try:
-    import aesthetix
-except:
-    import ds_utils.aesthetix as aesthetix
-
-_Data_Dir_  = "LibriSpeechMini/"
+    from ds_utils.augmentation import *
+import aesthetix
 
 def find_files(root_search_path = "", files_extension=""):
     files_list = []
@@ -58,81 +53,87 @@ def get_data(path = 'LibriSpeech/', verbose = False):
     print(f"Loaded dataset with shape {data.shape}")
     return data
 
+import string
+char_list = list(string.ascii_lowercase)
+char_list.extend([' ', '_', '.'])
+print(char_list)
+
+char_to_idx = {ch:i for i, ch in enumerate(char_list)}
+idx_to_char = {i:ch for i, ch in enumerate(char_list)}
+print(idx_to_char)
+
+def label_to_sequence(label):
+  return [char_to_idx[ch] for ch in label]
+
+def sequence_to_label(sq):
+  prev = "0"
+  label = ""
+  for idx in sq:
+    ch = idx_to_char[idx]
+    if ch is not prev:
+      if ch == '_':
+        prev = ""
+        continue
+      label+=ch
+      if ch == '.' : break
+      prev = ch
+  return label
+
+print(label_to_sequence("hello sir"))
+print(sequence_to_label(label_to_sequence("ccchhaaaaaattttt_tttteeeeeer jee_e")))
+
+
+labels = datset[:,1]
+
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+padding = 'post'
+truncating = 'post'
+
+max_len = max([len(lab) for lab in labels])
+
+
+
 """
 Data Generator
 """
 
-class SR_DataGenerator(tf.keras.utils.Sequence):
-    """
-        Keras based DataGenerator class for speech recognition datasets
-    """
-     # TODO @stellarator-x Arrange in increasing order for first epoch
+class SpeechDataGenerator(tf.keras.utils.Sequence):
 
-    def __init__(self, spectIDs, labels, batch_size = 32, dims = (1025, 2000), augmentation_ratio = 2, SortaGrad = False):
-        """
-        augmentation_ratio : #samples(augdat)/#samples(dat) : choice[1, 2, 3]
-        """
-        self.spectIDs = spectIDs
-        self.labels = labels
-        self.dims = dims
-        self.batch_size = batch_size
-        self.augmentation_ratio = augmentation_ratio
-        self.epoch_num = 0
-        self.SortaGrad = SortaGrad
-        self.indices = np.arange(len(self.spectIDs))
-        self.pwd = os.popen("pwd").read()[:-1]+"/"
-        if self.SortaGrad and self.epoch_num == 0:
-            # Arrange indices by length of transcription
-            indices = self.indices.tolist()
-            indices.sort(key = lambda x : len(labels[x]))
-            self.indices = np.array(indices)
+  def __init__(self, ids, id_to_label, batch_size = 50, dims = (257, 938), augment = False):
+    super(SpeechDataGenerator, self).__init__()
+    self.ids = ids
+    self.id_to_label = id_to_label
+    self.batch_size = batch_size
+    self.dims = dims
+    self.indices = np.arange(len(self.ids))
+    self.augment = augment
+    self.epoch_num = 0 # for sortagrad
+  
+  def __len__(self):
+    return int(np.floor(len(self.ids) / self.batch_size))
+  
+  def on_epoch_end(self):
+    np.random.shuffle(self.indices)
+    self.epoch_num += 1
 
+  def __data_generation(self, idxes):
+    y = []
+    batch_files = [self.ids[idx] for idx in idxes]
+    X = to_spectrograms(batch_files)
+    for idx in idxes:
+      lbl = clean_label(self.id_to_label[self.ids[idx]]) + "."
+      seq = label_to_sequence(lbl)
+      y.append(seq)
 
-    def __len__(self):
-        return int(np.floor(len(self.spectIDs) / self.batch_size))
+    y = pad_sequences(y, maxlen=257,padding = padding, truncating=truncating, value = char_to_idx['_'])
+    if self.augment : X, y = specAugment(X, y,add_random=False)
+    X = np.array(X)
+    y = np.array(y)
+    return X, y
 
-    def on_epoch_end(self):
-        self.indices = np.arange(len(self.spectIDs))
-
-        if self.SortaGrad and self.epoch_num == 0:
-            # Arrange indices by length of transcription
-            indices = self.indices.tolist()
-            indices.sort(key = lambda x : len(labels[x]))
-            self.indices = np.array(indices)
-            
-        elif self.shuffle is True:
-            np.random.shuffle(self.indices)
-        self.epoch_num += 1
-    
-    def __data_generation(self, spects_temp):
-        X = np.empty((self.batch_size, *self.dims))
-        y = np.empty((self.batch_size), dtype = str)
-
-        for i, ex in enumerate(spects_temp):
-            # path_to_id = find_files(root_search_path=self.pwd, files_extension= ex)
-            # print( path_to_id)
-            # input()  #Getting the audio file for the id
-            X[i,] = aug.to_spectrogram(ex)
-            y[i] = self.labels[i]
-
-        # Augment X
-        if self.augmentation_ratio is not 1:
-            X, y = aug.specAugment(X, y,add_random = (self.augmentation_ratio==3))
-
-        return X, y
-
-    def __getitem__(self, index):
-        # Generates on batch of data
-        indices = self.indices[index*int(self.batch_size/self.augmentation_ratio) : (index+1)*int(self.batch_size/self.augmentation_ratio)]
-
-        spects_temp = [self.spectIDs[k] for k in indices]
-
-        X, y = self.__data_generation(spects_temp)
-
-        return X, y
-
-if __name__ == "__main__":
-    datset = get_data(_Data_Dir_, True)
-    gen = SR_DataGenerator(datset[:,0], datset[:,1])
-    item = gen.__getitem__(0)
-    print(item.shape)
+  def __getitem__(self, index):
+    den = 1 
+    if self.augment : den = 2
+    indices = self.indices[index*int(self.batch_size/den) : (index+1)*int(self.batch_size/den)]
+    X, y = self.__data_generation(indices)
+    return X, y

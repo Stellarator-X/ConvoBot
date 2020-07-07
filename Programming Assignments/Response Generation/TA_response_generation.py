@@ -23,7 +23,7 @@ def clean_str(_str):
   _str = _str.replace("  ", " ")
   return _str
 
-with open("bin/Tokens_20k.txt", 'r') as file:
+with open("/home/abhay/Projects/ConvoBot/Programming Assignments/Response Generation/bin/Tokens_20k.txt", 'r') as file:
     js_string = file.read()
     tokenizer = tokenizer_from_json(js_string)
 
@@ -52,7 +52,7 @@ BATCH_SIZE = 100
 
 # os.system("wget --no-check-certificate https://storage.googleapis.com/laurencemoroney-blog.appspot.com/glove.6B.100d.txt -O bin/glove.6B.100d.txt")
 embeddings_index = {};
-with open('bin/glove.6B.100d.txt') as f:
+with open('/home/abhay/Projects/ConvoBot/Programming Assignments/Response Generation/bin/glove.6B.100d.txt') as f:
     for line in f:
         values = line.split();
         word = values[0];
@@ -68,7 +68,7 @@ for word, i in word_index.items():
 # LDA Model
 from gensim.test.utils import datapath
 from gensim.models.ldamodel import LdaModel
-fname = 'LDA/model/LDA.model'
+fname = '/home/abhay/Projects/ConvoBot/Programming Assignments/Response Generation/LDA/model/LDA.model'
 ConvLda = LdaModel.load(fname, mmap='r')
 
 # Defining the topic prediction layer
@@ -220,7 +220,7 @@ def loss_function(real, pred):
   return tf.reduce_mean(loss)
 
 # Defining checkpoint variables
-checkpoint_dir = 'bin/4K_topic_training_checkpoints'
+checkpoint_dir = '/home/abhay/Projects/ConvoBot/Programming Assignments/Response Generation/bin/4K_topic_training_checkpoints'
 checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
 checkpoint = tf.train.Checkpoint(optimizer=optimizer, encoder=encoder, decoder=decoder)
 

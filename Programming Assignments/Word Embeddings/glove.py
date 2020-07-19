@@ -168,7 +168,7 @@ class Glove():
             cost = cache['cost']
             history['cost'].append(cost)
             if i >  0:
-                assert cache['t'] > 0
+                # assert cache['t'] > 0
             # TODO : Add Status Bar
             print(f"\rIteration {i+1} : Cost = {cost}", end = "")
             sys.stdout.flush()

@@ -23,7 +23,7 @@ def to_spectrograms(audio_files, max_time = max_time):
       x, _ = librosa.load(audio_file, sr = SR)
       if len(x)<SR*max_time :x = list(x) + [0]*((SR*max_time)-len(x))
       x = x[:SR*max_time]
-      assert len(x)==SR*max_time, f"{len(x)}, expected : {SR*max_time}"
+    #   assert len(x)==SR*max_time, f"{len(x)}, expected : {SR*max_time}"
       X.append(x)
     X = np.array(X)
     X = np.reshape(X, (len(audio_files), 1, SR*max_time))
@@ -77,7 +77,7 @@ def frequency_mask(spectrogram, F=27):
     res2 = spectrogram[f0+f:, :]
     mask = tf.zeros_like(spectrogram[f0:f0+f,:])
     masked_spec = tf.concat([res1, mask, res2], axis = 0)
-    assert masked_spec.shape == spectrogram.shape
+    # assert masked_spec.shape == spectrogram.shape
     return tf.cast(masked_spec, dtype = tf.float64)
 
 
@@ -91,7 +91,7 @@ def time_mask(spectrogram, T=100):
     res2 = spectrogram[:, t0+t:]
     mask = tf.zeros_like(spectrogram[:, t0:t0+t])
     masked_spec = tf.concat([res1, mask, res2], axis = 1)
-    assert masked_spec.shape == spectrogram.shape
+    # assert masked_spec.shape == spectrogram.shape
     return tf.cast(masked_spec, dtype = tf.float64)
 
 def specAugment(data,labels, W=80, F=27, T=100, mF=1, mT=1, add_random = False):

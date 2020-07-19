@@ -462,9 +462,9 @@ def fit_GAN(epochs = 10, change_every = 5,loss_hist = []):
 
 def argmax_beam(tensor, width):
   arr = tensor.numpy()
-  assert arr.shape[0] == 1
+  # assert arr.shape[0] == 1
   arr_ = [c for c in arr[0]]
-  assert len(arr_) >= width, "Beam width is greater than the tensor length"
+  # assert len(arr_) >= width, "Beam width is greater than the tensor length"
   args = []
   for i in range(width):
     argm = np.argmax(arr_)

@@ -1,10 +1,7 @@
 from flask import Flask, render_template, request
 import bot
-from datetime import date
 
 app = Flask(__name__)
-
-
 
 @app.route("/")
 def home():

@@ -1,6 +1,6 @@
 import tensorflow as tf 
 from tensorflow.keras.layers import Dense, LayerNormalization, Bidirectional, Reshape, LSTM, Conv2D, Input, TimeDistributed, LayerNormalization
-from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.models import Sequential
 
 
 # The Loss Function

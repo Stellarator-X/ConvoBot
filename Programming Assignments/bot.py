@@ -82,15 +82,3 @@ def main():
         converse()
 
 main()
-        
- print("Say something.")
-    stimulus = stt.get_transcript()
-    if stimulus is not None:
-        if stimulus.lower() == "bye":
-            done = True
-        print("You said : ", stimulus)
-        response = get_response_beam(stimulus)
-    else :
-        response = "I didn't get that."
-    tts.play_response(response)
-    print("And I said : ", response)

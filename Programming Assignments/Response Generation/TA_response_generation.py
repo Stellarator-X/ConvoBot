@@ -2,10 +2,9 @@ print("Loading dependencies ...")
 
 import os
 import tensorflow as tf
-import time
 import numpy as np 
 import matplotlib.pyplot as plt
-from tensorflow.keras.preprocessing.text import Tokenizer, tokenizer_from_json
+from tensorflow.keras.preprocessing.text import tokenizer_from_json
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, GRU, Dense   
 
@@ -66,7 +65,6 @@ for word, i in word_index.items():
         embeddings_matrix[i] = embedding_vector;
 
 # LDA Model
-from gensim.test.utils import datapath
 from gensim.models.ldamodel import LdaModel
 fname = '/home/abhay/Projects/ConvoBot/Programming Assignments/Response Generation/LDA/model/LDA.model'
 ConvLda = LdaModel.load(fname, mmap='r')

@@ -17,7 +17,7 @@ args = parser.parse_args()
 from ds_utils.augmentation import *
 from ds_utils.data_manip import *
 import os 
-os.system("clear")
+
 if args.audio_file_path:
     print("Generating Augmentations:")
     spect = to_spectrogram(args.audio_file_path)

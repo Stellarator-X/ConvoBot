@@ -1,6 +1,5 @@
 import aiml
 import text_prc as tp 
-import re
 import os
 import datetime
 import pandas as pd

@@ -1,6 +1,5 @@
 from keras.models import Model
-from keras.layers import Input, Dense, Reshape, Dot, Embedding, BatchNormalization, LSTM, Bidirectional, Dropout
-from keras.layers.embeddings import Embedding
+from keras.layers import Input, Dense, Reshape, Embedding, BatchNormalization, LSTM, Bidirectional, Dropout
 from keras.preprocessing.sequence import skipgrams
 from keras.preprocessing import sequence
 from keras.preprocessing.text import Tokenizer

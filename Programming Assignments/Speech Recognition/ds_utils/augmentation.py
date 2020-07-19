@@ -3,7 +3,6 @@ import librosa.display
 import tensorflow as tf
 from tensorflow_addons.image import sparse_image_warp
 import numpy as np 
-import matplotlib.pyplot as plt
 from spela.spectrogram import Spectrogram
 
 # Spectrogram Model

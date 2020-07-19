@@ -4,7 +4,6 @@ import tensorflow as tf
 try:
     from augmentation import *
 except:
-    os.system("pwd")
     from ds_utils.augmentation import *
 import aesthetix
 

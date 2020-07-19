@@ -1,5 +1,4 @@
 from scipy import sparse
-import re
 import sys
 import numpy as np
 from tensorflow.keras.preprocessing.text import Tokenizer

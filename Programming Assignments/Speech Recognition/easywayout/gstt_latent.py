@@ -1,6 +1,5 @@
 # importing the module
 import speech_recognition as sr
-import time
 r = sr.Recognizer()
 audio_file = sr.AudioFile('/home/abhay/Projects/ConvoBot/Programming Assignments/Speech Recognition/easywaysout/download.flac')
 

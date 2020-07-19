@@ -2,10 +2,9 @@ print("Loading dependencies ...")
 
 import os
 import tensorflow as tf
-import time
 import numpy as np 
 import matplotlib.pyplot as plt
-from tensorflow.keras.preprocessing.text import Tokenizer, tokenizer_from_json
+from tensorflow.keras.preprocessing.text import tokenizer_from_json
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, GRU, Dense   
 
@@ -14,7 +13,6 @@ def clean_str(_str):
   _str = _str.lower()
   _str = _str.replace(".", "")
   _str = _str.replace(",", "")
-  _str = _str.repl
   _str = _str.replace("!", "")
   _str = _str.replace(":", "")
   _str = _str.replace("-", " ")
@@ -186,7 +184,7 @@ def evaluate(sentence):
   decoder_hidden = encoder_hidden
   decoder_input = tf.expand_dims([word_index['<start>']], 0)
 
-  for t in range(max_length):
+  for _ in range(max_length):
     predictions, decoder_hidden, attention_weights = decoder(decoder_input, decoder_hidden, encoder_output)
 
     # Storing the attention weights to plot later

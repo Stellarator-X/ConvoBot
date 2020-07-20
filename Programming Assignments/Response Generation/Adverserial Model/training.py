@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 # Data Pipeline
+import os
 try:
   import aesthetix as at
 except:
-  !pip install aesthetix
+  os.popen("pip install aesthetix")
   import aesthetix as at
 import numpy as np 
 import tensorflow as tf 
@@ -16,7 +17,7 @@ print(tf.__version__)
 # Downloading movie_lines
 import os
 if "movie_lines.txt" not in os.popen("ls").read():
-  !wget https://raw.githubusercontent.com/Stellarator-X/ConvoBot/servus/Programming%20Assignments/Response%20Generation/movie_lines.txt
+  os.popen("wget https://raw.githubusercontent.com/Stellarator-X/ConvoBot/servus/Programming%20Assignments/Response%20Generation/movie_lines.txt")
 
 movielines = open("movie_lines.txt", mode='r')
 print(movielines)
@@ -132,9 +133,9 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 # Getting the embedding layer
 embedding_dim = 100
-!wget --no-check-certificate \
+os.popen("wget --no-check-certificate \
     https://storage.googleapis.com/laurencemoroney-blog.appspot.com/glove.6B.100d.txt \
-    -O /tmp/glove.6B.100d.txt
+    -O /tmp/glove.6B.100d.txt")
 embeddings_index = {};
 with open('/tmp/glove.6B.100d.txt') as f:
     for line in f:

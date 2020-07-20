@@ -1,7 +1,6 @@
 # ConvoBot
 
-<!-- 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6e49b7166aa943338cc09fdc8d48702a)](https://www.codacy.com/manual/Stellarator-X/ConvoBot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Stellarator-X/ConvoBot&amp;utm_campaign=Badge_Grade) -->
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6e49b7166aa943338cc09fdc8d48702a)](https://www.codacy.com/manual/Stellarator-X/ConvoBot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Stellarator-X/ConvoBot&amp;utm_campaign=Badge_Grade) [![HitCount](http://hits.dwyl.com/Stellarator-X/ConvoBot.svg)](http://hits.dwyl.com/Stellarator-X/ConvoBot)
 
 Repository for Conversational_bot
 

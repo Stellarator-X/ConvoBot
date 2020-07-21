@@ -1,3 +1,11 @@
+import argparse
+parser = argparse.ArgumentParser(description = "The bot.")
+
+parser.add_argument("-m", "--mode", default = "msg", choices = ['msg', 'trigger'],  help = "Mode of execution : Message box/ Trigger word detection")
+args = parser.parse_args()
+func = args.mode
+
+
 import sys
 sys.path.append("Speech Recognition/")
 sys.path.append("Response Generation/")
@@ -8,8 +16,7 @@ import TextToSpeech.tts as tts
 
 done = False
 
-while not done:
-   import speech_recognition as sr
+import speech_recognition as sr
 from tkinter import messagebox
 import time
 print("Vatican Cameos.")
@@ -64,10 +71,13 @@ def converse():
             if stimulus.lower() == "bye":
                 done = True
             print("You said : ", stimulus)
-            response = get_response(stimulus)
+            response = get_response_beam(stimulus)
         else :
             response = np.random.choice(glomar)
-        tts.play_response(response)
+        try:
+            tts.play_response(response)
+        except:
+            print(f"My own response, {response} rendered me speechless")
         print("And I said : ", response)
 
 def main():
